@@ -32,10 +32,8 @@ public:
 
 private:
     void InitializeMapButton();
-    bool CompressData(const QByteArray &data, QByteArray &compressedData);
-    void CompressFile(const QString &filePath, const QString &outputFilePath);
-    void CompressFolder(const QString &folderPath, const QString &outputFolderPath);
-    static bool CreateZipArchive(const QString &filePath, const QString &zipPath);
+    static bool CreateZipFolder(const QString &folderPath, const QString &outputFolderPath);
+    static bool CreateZipFile(const QString &filePath, const QString &zipPath);
 
 public slots:
     void ButtonState(QObject* sender, ButtonsState state);
@@ -45,6 +43,7 @@ public slots:
 signals:
     void UpdateFileSystem();
     void ArchiveFileButton();
+    void OpenArchiveWindow();
 
 private:
     std::map<ButtonsState, std::function<void()>> logicMap;

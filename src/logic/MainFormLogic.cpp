@@ -15,7 +15,7 @@ void MainFormLogic::ButtonState(QObject* sender, ButtonsState state) {
 //сигнал из логики должен идти только если он обновляет UI, то есть если логика не требует полей из ui то выполняется здесь
 void MainFormLogic::InitializeMapButton() {
     logicMap[ARCHIVE_File]  = [this]()  { emit ArchiveFileButton(); };
-    logicMap[EXTRACT_File]  = [this]()  { };
+    logicMap[EXTRACT_File]  = [this]()  { emit OpenArchiveWindow(); };
     logicMap[Path_LineEdit] = [this]()  { emit UpdateFileSystem();};
 }
 
@@ -31,32 +31,21 @@ void MainFormLogic::ProcessState(QObject *sender) {
 
 void MainFormLogic::ArchiveFile(const QString &path) {
     QFileInfo info(path);
+    QString zipPath = path + ".zip";
 
-    if (info.isFile()) {
-        QString zipPath = path + ".zip";
-        if (CreateZipArchive(path, zipPath)) {
-            qDebug() << "File successfully archived to" << zipPath;
-        } else {
-            qDebug() << "Failed to archive file";
-        }
-    } else if (info.isDir()) {
+    if (info.isFile() && CreateZipFile(path, zipPath)) {
+        qDebug() << "File successfully archived to" << zipPath;
+    }
+    else if (info.isDir()) {
         qDebug() << "Directory archiving is not implemented in this example";
     }
 }
 
-void MainFormLogic::CompressFile(const QString &filePath, const QString &outputFilePath) {
+bool MainFormLogic::CreateZipFolder(const QString &folderPath, const QString &outputFolderPath) {
 
 }
 
-void MainFormLogic::CompressFolder(const QString &folderPath, const QString &outputFolderPath) {
-
-}
-
-bool MainFormLogic::CompressData(const QByteArray &data, QByteArray &compressedData) {
-
-}
-
-bool MainFormLogic::CreateZipArchive(const QString &filePath, const QString &zipPath) {
+bool MainFormLogic::CreateZipFile(const QString &filePath, const QString &zipPath) {
     int error = 0;
     zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_CREATE | ZIP_TRUNCATE, &error);
 

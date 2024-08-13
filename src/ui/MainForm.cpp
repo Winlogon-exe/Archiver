@@ -89,6 +89,7 @@ void MainForm::SetupConnect() {
     //из logic в UI
     connect(&logic, &MainFormLogic::UpdateFileSystem, this, &MainForm::UpdateFileSystem);
     connect(&logic, &MainFormLogic::ArchiveFileButton, this, &MainForm::FileSelected);
+    connect(&logic, &MainFormLogic::OpenArchiveWindow, this, &MainForm::OpenArchiveWindow);
 }
 
 void MainForm::Clicked() {
@@ -103,13 +104,18 @@ void MainForm::UpdateFileSystem() {
 void MainForm::FileSelected() {
     QModelIndexList selectedIndexes = fileSystemView->selectionModel()->selectedIndexes();
 
-    if (!selectedIndexes.isEmpty()) {
-        QModelIndex selectedIndex = selectedIndexes.first();
-        QString selectedFilePath = fileSystemModel->filePath(selectedIndex);
-        emit SendSelectedFile(selectedFilePath);
+    if (selectedIndexes.isEmpty()) {
+        qDebug()<<"Index is empty";
         return;
     }
-    qDebug()<<"Index is empty";
+
+    QModelIndex selectedIndex = selectedIndexes.first();
+    QString selectedFilePath = fileSystemModel->filePath(selectedIndex);
+    emit SendSelectedFile(selectedFilePath);
+}
+
+void MainForm::OpenArchiveWindow() {
+    //надо в отдельном окне как то получить разархивированные файлы и добавить в fileSystemView
 }
 
 

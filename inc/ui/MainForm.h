@@ -47,9 +47,10 @@ signals:
     void SendSelectedFile(const QString& file);
 
 public slots:
-    void Clicked();
     void UpdateFileSystem();
     void FileSelected();
+    void Clicked();
+    void OpenArchiveWindow();
 
 private:
     QPushButton *archiveButton;

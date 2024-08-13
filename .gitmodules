@@ -1,0 +1,6 @@
+[submodule "external/karchive"]
+	path = external/karchive
+	url = https://invent.kde.org/frameworks/karchive.git
+[submodule "external/external/karchive"]
+	path = external/external/karchive
+	url = https://invent.kde.org/frameworks/karchive.git

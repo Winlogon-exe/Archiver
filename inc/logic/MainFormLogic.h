@@ -13,6 +13,10 @@
 #include <QFileInfo>
 #include <QDir>
 
+#include <zconf.h>
+#include <zlib.h>
+#include <zip.h>
+
 enum ButtonsState {
     ARCHIVE_File,
     EXTRACT_File,
@@ -28,15 +32,15 @@ public:
 
 private:
     void InitializeMapButton();
-    void CompressData(const QByteArray &data, QByteArray &compressedData);
+    bool CompressData(const QByteArray &data, QByteArray &compressedData);
     void CompressFile(const QString &filePath, const QString &outputFilePath);
     void CompressFolder(const QString &folderPath, const QString &outputFolderPath);
-    void CreateZipArchive(const QString &zipFilePath, const QString &fileName,const std::vector<unsigned char>&data);
+    static bool CreateZipArchive(const QString &filePath, const QString &zipPath);
 
 public slots:
     void ButtonState(QObject* sender, ButtonsState state);
     void ProcessState(QObject* sender);
-    void ArchiveFile(const QString& path);
+    static void ArchiveFile(const QString& path);
 
 signals:
     void UpdateFileSystem();

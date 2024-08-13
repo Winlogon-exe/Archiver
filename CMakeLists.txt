@@ -15,8 +15,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 
-add_subdirectory(external/karchive)
-
 qt_add_executable(Detroit
         main.cpp
         inc/ui/MainForm.h
@@ -26,4 +24,4 @@ qt_add_executable(Detroit
         src/logic/MainFormLogic.cpp
 )
 
-target_link_libraries(Detroit PRIVATE Qt${QT_VERSION_MAJOR}::Widgets KF5::Archive)
+target_link_libraries(Detroit PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

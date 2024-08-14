@@ -53,9 +53,28 @@ namespace MainLogic
         qDebug() << "Failed to archive file or folder";
     }
 
-    bool MainFormLogic::CreateZipFolder(const QString &folderPath, const QString &outputFolderPath)
+    bool MainFormLogic::CreateZipFolder(const QString &folderPath, const QString &zipPath)
     {
+        int error = 0;
+        zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_CREATE | ZIP_TRUNCATE, &error);
 
+        if (!archive) {
+            qDebug() << "Failed to create ZIP archive. Error code:" << error;
+            return false;
+        }
+
+        QString folderName = QFileInfo(folderPath).fileName();
+        if (zip_dir_add(archive, folderName.toUtf8().constData(), ZIP_FL_ENC_UTF_8) < 0) {
+            qDebug() << "Failed to add directory to ZIP archive. Error:" << zip_strerror(archive);
+            zip_discard(archive);
+            return false;
+        }
+
+        if (zip_close(archive) < 0) {
+            qDebug() << "Failed to close ZIP archive. Error:" << zip_strerror(archive);
+            return false;
+        }
+        return true;
     }
 
     bool MainFormLogic::CreateZipFile(const QString &filePath, const QString &zipPath)

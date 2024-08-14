@@ -17,37 +17,39 @@
 #include <zlib.h>
 #include <zip.h>
 
-enum ButtonsState {
-    ARCHIVE_File,
-    EXTRACT_File,
-    Path_LineEdit
-};
+namespace MainLogic {
 
-class MainFormLogic: public QObject {
+    enum ButtonsState {
+        ARCHIVE_File,
+        EXTRACT_File,
+        Path_LineEdit
+    };
+
+    class MainFormLogic : public QObject {
     Q_OBJECT
 
-public:
-    MainFormLogic();
-    ~MainFormLogic() override = default;
+    public:
+        MainFormLogic();
+        ~MainFormLogic() override = default;
 
-private:
-    void InitializeMapButton();
-    static bool CreateZipFolder(const QString &folderPath, const QString &outputFolderPath);
-    static bool CreateZipFile(const QString &filePath, const QString &zipPath);
+    private:
+        void InitializeMapButton();
+        static bool CreateZipFolder(const QString &folderPath, const QString &outputFolderPath);
+        static bool CreateZipFile(const QString &filePath, const QString &zipPath);
 
-public slots:
-    void ButtonState(QObject* sender, ButtonsState state);
-    void ProcessState(QObject* sender);
-    static void ArchiveFile(const QString& path);
+    public slots:
+        void ButtonState(QObject *sender, ButtonsState state);
+        void ProcessState(QObject *sender);
+        static void Archive(const QString &path);
 
-signals:
-    void UpdateFileSystem();
-    void ArchiveFileButton();
-    void OpenArchiveWindow();
+    signals:
+        void UpdateFileSystem();
+        void ArchiveFileButton();
+        void OpenArchiveWindow();
 
-private:
-    std::map<ButtonsState, std::function<void()>> logicMap;
-    std::map<QObject*, ButtonsState> buttonStateMap;
-};
-
+    private:
+        std::map<ButtonsState, std::function<void()>> logicMap;
+        std::map<QObject *, ButtonsState> buttonStateMap;
+    };
+}
 #endif //DETROIT_MAINFORMLOGIC_H

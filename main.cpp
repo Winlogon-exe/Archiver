@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    MainForm form;
+    MainWindow::MainForm form;
     form.SetupConnect();
     form.InitializeUI();
     form.show();

@@ -20,49 +20,52 @@
 #include <QLineEdit>
 #include "logic/MainFormLogic.h"
 
-class MainForm : public QMainWindow
+namespace MainWindow
 {
+    class MainForm : public QMainWindow {
     Q_OBJECT
-public:
-     explicit MainForm(QWidget *parent = nullptr);
-    ~MainForm() override = default;
 
-public:
-    void InitializeUI();
-    void InitializeFileSystemView();
-    void InitializePathLineEdit();
-    void InitializeButtons();
-    void InitializeToolBar();
-    void InitializeMenuBar();
+    public:
+        explicit MainForm(QWidget *parent = nullptr);
 
-    void SetupLayout();
-    void SetupConnect();
-    void SetSizeWindow();
-    QPushButton* CreateButton(const QString& name, ButtonsState button);
-    QLineEdit* CreateLineEdit(const QString& name, ButtonsState button);
+        ~MainForm() override = default;
 
-signals:
-    void SetState(QObject* sender, ButtonsState state);
-    void RequestProcessState(QObject* sender);
-    void SendSelectedFile(const QString& file);
+    public:
+        void InitializeUI();
+        void InitializeFileSystemView();
+        void InitializePathLineEdit();
+        void InitializeButtons();
+        void InitializeToolBar();
+        void InitializeMenuBar();
+        void SetupLayout();
+        void SetupConnect();
+        void SetSizeWindow();
+        QPushButton *CreateButton(const QString &name, MainLogic::ButtonsState button);
+        QLineEdit *CreateLineEdit(const QString &name, MainLogic::ButtonsState button);
 
-public slots:
-    void UpdateFileSystem();
-    void FileSelected();
-    void Clicked();
-    void OpenArchiveWindow();
+    signals:
+        void SetState(QObject *sender, MainLogic::ButtonsState state);
+        void RequestProcessState(QObject *sender);
+        void SendSelectedFile(const QString &file);
 
-private:
-    QPushButton *archiveButton;
-    QPushButton *extractButton;
+    public slots:
+        void UpdateFileSystem();
+        void FileSelected();
+        void Clicked();
+        void OpenArchiveWindow();
 
-private:
-    QFileSystemModel *fileSystemModel;
-    QLineEdit *pathLineEdit;
-    QTreeView *fileSystemView;
-    QToolBar *toolBar;
-    QWidget *centralWidget;
-    MainFormLogic logic;
-};
+    private:
+        QPushButton *archiveButton;
+        QPushButton *extractButton;
 
+    private:
+        QFileSystemModel *fileSystemModel;
+        QLineEdit *pathLineEdit;
+        QTreeView *fileSystemView;
+        QToolBar *toolBar;
+        QWidget *centralWidget;
+        MainLogic::MainFormLogic logic;
+    };
+}
 #endif //DETROIT_MAINFORM_H
+

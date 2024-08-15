@@ -39,13 +39,13 @@ namespace MainLogic
         QFileInfo info(path);
         QString zipPath = path + ".zip";
 
-        if (info.isFile() && CreateZipFile(path, zipPath))
+        if (info.isFile() && AddFileToZip(path, zipPath))
         {
             qDebug() << "File successfully archived to" << zipPath;
             return;
         }
 
-        if (info.isDir() && CreateZipFolder(path, zipPath))
+        if (info.isDir() && CreateZipFolder(path,zipPath))
         {
             qDebug() << "Folder successfully archived to" << zipPath;
             return;
@@ -53,42 +53,41 @@ namespace MainLogic
         qDebug() << "Failed to archive file or folder";
     }
 
-    bool MainFormLogic::CreateZipFolder(const QString &folderPath, const QString &zipPath)
+    bool MainFormLogic::CreateZipFolder(const QString &absolutePathFolder, const QString &zipPath)
     {
-        int error = 0;
-        zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_CREATE | ZIP_TRUNCATE, &error);
+        int errorDir = 0;
+        zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_CREATE | ZIP_TRUNCATE, &errorDir);
 
-        if (!archive) {
-            qDebug() << "Failed to create ZIP archive. Error code:" << error;
-            return false;
-        }
-
-        QString folderName = QFileInfo(folderPath).fileName();
-        if (zip_dir_add(archive, folderName.toUtf8().constData(), ZIP_FL_ENC_UTF_8) < 0) {
-            qDebug() << "Failed to add directory to ZIP archive. Error:" << zip_strerror(archive);
+        QString baseFolderName = QFileInfo(absolutePathFolder).fileName();
+        if (zip_dir_add(archive, baseFolderName.toUtf8().constData(), ZIP_FL_ENC_UTF_8) < 0)
+        {
+            qDebug() << "Failed to add directory to zip:" << baseFolderName << "Error:" << zip_strerror(archive);
             zip_discard(archive);
             return false;
         }
 
-        if (zip_close(archive) < 0) {
-            qDebug() << "Failed to close ZIP archive. Error:" << zip_strerror(archive);
-            return false;
+        QDir dir(absolutePathFolder);
+        QFileInfoList fileList = dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QFileInfo &fileInfo : fileList)
+        {
+            if (fileInfo.isDir())
+            {
+                qDebug()<<"not implemented";
+            }
+            else
+            {
+                AddFileToZip(fileInfo.absoluteFilePath(), zipPath);
+            }
         }
         return true;
     }
 
-    bool MainFormLogic::CreateZipFile(const QString &filePath, const QString &zipPath)
+    bool MainFormLogic::AddFileToZip(const QString &absolutePathFile, const QString &zipPath)
     {
         int error = 0;
         zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_CREATE | ZIP_TRUNCATE, &error);
 
-        if (archive == nullptr)
-        {
-            qDebug() << "Failed to create ZIP archive with error code" << error;
-            return false;
-        }
-
-        QFile file(filePath);
+        QFile file(absolutePathFile);
         if (!file.open(QIODevice::ReadOnly))
         {
             qDebug() << "Failed to open file for reading:" << file.errorString();
@@ -99,14 +98,7 @@ namespace MainLogic
         QByteArray fileData = file.readAll();
         zip_source_t *source = zip_source_buffer(archive, fileData.data(), fileData.size(), 0);
 
-        if (source == nullptr)
-        {
-            qDebug() << "Failed to create ZIP source";
-            zip_discard(archive);
-            return false;
-        }
-
-        if (zip_file_add(archive, QFileInfo(filePath).fileName().toUtf8().constData(), source, ZIP_FL_OVERWRITE) < 0)
+        if (zip_file_add(archive, QFileInfo(absolutePathFile).fileName().toUtf8().constData(), source, ZIP_FL_OVERWRITE) < 0)
         {
             qDebug() << "Failed to add file to ZIP archive";
             zip_source_free(source);

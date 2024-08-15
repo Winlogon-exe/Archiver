@@ -12,7 +12,7 @@
 #include <QByteArray>
 #include <QFileInfo>
 #include <QDir>
-
+#include <QtConcurrent/QtConcurrent>
 #include <zconf.h>
 #include <zlib.h>
 #include <zip.h>
@@ -35,7 +35,7 @@ namespace MainLogic {
     private:
         void InitializeMapButton();
         static bool CreateZipFolder(const QString &folderPath, const QString &outputFolderPath);
-        static bool CreateZipFile(const QString &filePath, const QString &zipPath);
+        static bool AddFileToZip(const QString &filePath, const QString &zipPath);
 
     public slots:
         void ButtonState(QObject *sender, ButtonsState state);

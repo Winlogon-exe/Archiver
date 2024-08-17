@@ -5,7 +5,10 @@
 
 namespace MainWindow {
 
-    MainForm::MainForm(QWidget *parent) : QMainWindow(parent) {}
+    MainForm::MainForm(QWidget *parent, MainLogic::MainFormLogic *logic) : QMainWindow(parent), logic(logic)
+    {
+
+    }
 
     void MainForm::SetSizeWindow()
     {
@@ -95,14 +98,14 @@ namespace MainWindow {
     void MainForm::SetupConnect()
     {
         //из UI в logic
-        connect(this, &MainForm::SetState, &logic, &MainLogic::MainFormLogic::ButtonState);
-        connect(this, &MainForm::RequestProcessState, &logic, &MainLogic::MainFormLogic::ProcessState);
-        connect(this, &MainForm::SendSelectedFile, &logic, &MainLogic::MainFormLogic::Archive);
+        connect(this, &MainForm::SetState, logic, &MainLogic::MainFormLogic::ButtonState);
+        connect(this, &MainForm::RequestProcessState, logic, &MainLogic::MainFormLogic::ProcessState);
+        connect(this, &MainForm::SendSelectedFile, logic, &MainLogic::MainFormLogic::Archive);
 
         //из logic в UI
-        connect(&logic, &MainLogic::MainFormLogic::UpdateFileSystem, this, &MainForm::UpdateFileSystem);
-        connect(&logic, &MainLogic::MainFormLogic::ArchiveFileButton, this, &MainForm::FileSelected);
-        connect(&logic, &MainLogic::MainFormLogic::OpenArchiveWindow, this, &MainForm::OpenArchiveWindow);
+        connect(logic, &MainLogic::MainFormLogic::UpdateFileSystem, this, &MainForm::UpdateFileSystem);
+        connect(logic, &MainLogic::MainFormLogic::ArchiveFileButton, this, &MainForm::FileSelected);
+        connect(logic, &MainLogic::MainFormLogic::OpenArchiveWindow, this, &MainForm::OpenArchiveWindow);
     }
 
     void MainForm::Clicked()
@@ -133,6 +136,9 @@ namespace MainWindow {
     void MainForm::OpenArchiveWindow()
     {
         //надо в отдельном окне как то получить разархивированные файлы и добавить в fileSystemView
+    }
+
+    MainForm::~MainForm() {
     }
 }
 

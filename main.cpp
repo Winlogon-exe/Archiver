@@ -5,10 +5,22 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    MainWindow::MainForm form;
+    QThread logicThread;
+
+    MainLogic::MainFormLogic logic;
+    logic.moveToThread(&logicThread);
+
+    logicThread.start();
+
+    MainWindow::MainForm form(nullptr, &logic);
+
     form.SetupConnect();
     form.InitializeUI();
     form.show();
 
+    QObject::connect(&app, &QApplication::aboutToQuit, &logicThread, &QThread::quit);
+    QObject::connect(&logicThread, &QThread::finished, &logicThread, &QThread::deleteLater);
+
     return QApplication::exec();
 }
+

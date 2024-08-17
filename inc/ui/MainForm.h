@@ -18,6 +18,8 @@
 #include <QTreeView>
 #include <QFileSystemModel>
 #include <QLineEdit>
+#include <QThread>
+
 #include "logic/MainFormLogic.h"
 
 namespace MainWindow
@@ -26,9 +28,9 @@ namespace MainWindow
     Q_OBJECT
 
     public:
-        explicit MainForm(QWidget *parent = nullptr);
+        explicit MainForm(QWidget *parent = nullptr, MainLogic::MainFormLogic *logic = nullptr);
 
-        ~MainForm() override = default;
+        ~MainForm();
 
     public:
         void InitializeUI();
@@ -64,7 +66,7 @@ namespace MainWindow
         QTreeView *fileSystemView;
         QToolBar *toolBar;
         QWidget *centralWidget;
-        MainLogic::MainFormLogic logic;
+        MainLogic::MainFormLogic* logic;
     };
 }
 #endif //DETROIT_MAINFORM_H

@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
 
     MainLogic::MainFormLogic logic;
     logic.moveToThread(&logicThread);
-
     logicThread.start();
 
     MainWindow::MainForm form(nullptr, &logic);

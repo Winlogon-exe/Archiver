@@ -18,9 +18,9 @@ namespace MainLogic
 
     void MainFormLogic::InitializeMapButton()
     {
-        logicMap[ARCHIVE_File] = [this]()  { emit ArchiveFileButton(); };
-        logicMap[EXTRACT_File] = [this]()  { emit OpenArchiveWindow(); };
-        logicMap[Path_LineEdit] = [this]() { emit UpdateFileSystem(); };
+        logicMap[ARCHIVE_File] =   [this]() { emit ArchiveFileButton(); };
+        logicMap[UNARCHIVE_File] = [this]() { emit UnarchiveFileButton(); };
+        logicMap[Path_LineEdit] =  [this]() { emit UpdateFileSystem(); };
     }
 
     void MainFormLogic::ProcessState(QObject *sender)
@@ -36,7 +36,6 @@ namespace MainLogic
 
     void MainFormLogic::Archive(const QString &absolutePath)
     {
-        QThread::sleep(2);
         int errorDir = 0;
         QString zipPath = absolutePath + ".zip";
         zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_CREATE | ZIP_TRUNCATE, &errorDir);
@@ -64,6 +63,7 @@ namespace MainLogic
         }
     }
 
+    //TODO:: добавить еще параметр куда сохранять сжатый файл
     bool MainFormLogic::AddFileToZip(zip_t *archive, const QString &absolutePathFile, const QString &relativePathInArchive)
     {
         QFile file(absolutePathFile);
@@ -91,9 +91,9 @@ namespace MainLogic
         return true;
     }
 
+    //TODO:: добавить еще параметр куда сохранять сжатый файл
     bool MainFormLogic::AddFolderToZip(zip_t *archive, const QString &absolutePathFolder, const QString &relativePathInArchive)
     {
-        // Добавляем саму папку
         if (zip_dir_add(archive, relativePathInArchive.toUtf8().constData(), ZIP_FL_ENC_UTF_8) < 0)
         {
             qDebug() << "Failed to add directory to zip:" << relativePathInArchive << "Error:" << zip_strerror(archive);
@@ -111,7 +111,6 @@ namespace MainLogic
 
             if (fileInfo.isDir())
             {
-                // Рекурсивно добавляем содержимое папки
                 if (!AddFolderToZip(archive, absolutePath, relativePath))
                 {
                     return false;
@@ -126,5 +125,53 @@ namespace MainLogic
             }
         }
         return true;
+    }
+
+    void MainFormLogic::UnArchive(const QString &zipPath)
+    {
+        int errorDir = 0;
+        zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_RDONLY, &errorDir);
+        if (archive == nullptr)
+        {
+            qDebug() << "Failed to open zip archive:" << zipPath;
+            return;
+        }
+
+        zip_int64_t numEntries = zip_get_num_entries(archive, 0);
+
+        QFileInfo fileInfo(zipPath);
+        QString destDirPath = fileInfo.absolutePath();
+
+        for (zip_uint64_t i = 0; i < numEntries; i++)
+        {
+            zip_stat_t st;
+            zip_stat_index(archive, i, ZIP_RDONLY, &st);
+
+            QString fileName = QString::fromUtf8(st.name);
+            QString filePath = destDirPath + "/" + fileName;
+
+            if (fileName.endsWith("/"))
+            {
+                QDir().mkpath(filePath);
+            }
+            else
+            {
+                zip_file_t *zf = zip_fopen_index(archive, i, 0);
+                QFile file(filePath);
+                file.open(QIODevice::WriteOnly);
+
+                char buffer[8192];
+                zip_int64_t bytesRead = 0;
+
+                while ((bytesRead = zip_fread(zf, buffer, sizeof(buffer))) > 0)
+                {
+                    file.write(buffer, bytesRead);
+                }
+                file.close();
+                zip_fclose(zf);
+            }
+        }
+        zip_close(archive);
+        qDebug() << "Unzipping completed to:" << destDirPath;
     }
 }

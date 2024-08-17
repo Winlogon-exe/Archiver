@@ -22,7 +22,7 @@ namespace MainLogic {
 
     enum ButtonsState {
         ARCHIVE_File,
-        EXTRACT_File,
+        UNARCHIVE_File,
         Path_LineEdit
     };
 
@@ -42,11 +42,12 @@ namespace MainLogic {
         void ButtonState(QObject *sender, ButtonsState state);
         void ProcessState(QObject *sender);
         static void Archive(const QString &path);
+        static void UnArchive(const QString &path);
 
     signals:
         void UpdateFileSystem();
         void ArchiveFileButton();
-        void OpenArchiveWindow();
+        void UnarchiveFileButton();
 
     private:
         std::map<ButtonsState, std::function<void()>> logicMap;

@@ -30,7 +30,7 @@ namespace MainWindow
     public:
         explicit MainForm(QWidget *parent = nullptr, MainLogic::MainFormLogic *logic = nullptr);
 
-        ~MainForm();
+        ~MainForm() = default;
 
     public:
         void InitializeUI();
@@ -48,13 +48,14 @@ namespace MainWindow
     signals:
         void SetState(QObject *sender, MainLogic::ButtonsState state);
         void RequestProcessState(QObject *sender);
-        void SendSelectedFile(const QString &file);
+        void SendSelectedFileArchive(const QString &file);
+        void SendSelectedFileUnArchive(const QString &file);
 
     public slots:
         void UpdateFileSystem();
-        void FileSelected();
+        void FileSelectedForArchive();
+        void FileSelectedForUnArchive();
         void Clicked();
-        void OpenArchiveWindow();
 
     private:
         QPushButton *archiveButton;

@@ -50,7 +50,7 @@ namespace MainWindow {
     void MainForm::InitializeButtons()
     {
         archiveButton = CreateButton("Добавить в архив", MainLogic::ARCHIVE_File);
-        extractButton = CreateButton("Извлечь из архива", MainLogic::EXTRACT_File);
+        extractButton = CreateButton("Извлечь из архива", MainLogic::UNARCHIVE_File);
     }
 
     void MainForm::InitializeToolBar()
@@ -100,12 +100,13 @@ namespace MainWindow {
         //из UI в logic
         connect(this, &MainForm::SetState, logic, &MainLogic::MainFormLogic::ButtonState);
         connect(this, &MainForm::RequestProcessState, logic, &MainLogic::MainFormLogic::ProcessState);
-        connect(this, &MainForm::SendSelectedFile, logic, &MainLogic::MainFormLogic::Archive);
+        connect(this, &MainForm::SendSelectedFileArchive, logic, &MainLogic::MainFormLogic::Archive);
+        connect(this, &MainForm::SendSelectedFileUnArchive, logic, &MainLogic::MainFormLogic::UnArchive);
 
         //из logic в UI
         connect(logic, &MainLogic::MainFormLogic::UpdateFileSystem, this, &MainForm::UpdateFileSystem);
-        connect(logic, &MainLogic::MainFormLogic::ArchiveFileButton, this, &MainForm::FileSelected);
-        connect(logic, &MainLogic::MainFormLogic::OpenArchiveWindow, this, &MainForm::OpenArchiveWindow);
+        connect(logic, &MainLogic::MainFormLogic::ArchiveFileButton, this, &MainForm::FileSelectedForArchive);
+        connect(logic, &MainLogic::MainFormLogic::UnarchiveFileButton, this, &MainForm::FileSelectedForUnArchive);
     }
 
     void MainForm::Clicked()
@@ -119,7 +120,7 @@ namespace MainWindow {
         fileSystemView->setRootIndex(fileSystemModel->index(pathLineEdit->text()));
     }
 
-    void MainForm::FileSelected()
+    void MainForm::FileSelectedForArchive()
     {
         QModelIndexList selectedIndexes = fileSystemView->selectionModel()->selectedIndexes();
 
@@ -130,15 +131,25 @@ namespace MainWindow {
 
         QModelIndex selectedIndex = selectedIndexes.first();
         QString selectedFilePath = fileSystemModel->filePath(selectedIndex);
-        emit SendSelectedFile(selectedFilePath);
+        emit SendSelectedFileArchive(selectedFilePath);
     }
 
-    void MainForm::OpenArchiveWindow()
-    {
-        //надо в отдельном окне как то получить разархивированные файлы и добавить в fileSystemView
-    }
+    void MainForm::FileSelectedForUnArchive() {
+        QModelIndexList selectedIndexes = fileSystemView->selectionModel()->selectedIndexes();
 
-    MainForm::~MainForm() {
+        if (selectedIndexes.isEmpty()) {
+            qDebug() << "Index is empty";
+            return;
+        }
+
+        QModelIndex selectedIndex = selectedIndexes.first();
+        QString selectedFilePath = fileSystemModel->filePath(selectedIndex);
+
+        if(!selectedFilePath.endsWith(".zip")) {
+            qDebug() << "File is not zip";
+            return;
+        }
+        emit SendSelectedFileUnArchive(selectedFilePath);
     }
 }
 

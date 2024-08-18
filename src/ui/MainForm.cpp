@@ -149,6 +149,7 @@ namespace MainWindow {
             qDebug() << "File is not zip";
             return;
         }
+
         emit SendSelectedFileUnArchive(selectedFilePath);
     }
 }

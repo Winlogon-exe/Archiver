@@ -20,7 +20,7 @@ find_package(libzip CONFIG REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 
-qt_add_executable(Detroit
+qt_add_executable(Detroit WIN32
         main.cpp
         inc/ui/MainForm.h
         src/ui/MainForm.cpp

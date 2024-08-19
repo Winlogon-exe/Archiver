@@ -39,6 +39,8 @@ namespace MainWindow {
         fileSystemView->setModel(fileSystemModel);
         fileSystemView->setRootIndex(fileSystemModel->index(""));
         fileSystemView->setColumnWidth(0, 250);
+
+        connect(fileSystemView, &QTreeView::doubleClicked, this, &MainForm::FileDoubleClicked);
     }
 
     void MainForm::InitializePathLineEdit()
@@ -150,7 +152,14 @@ namespace MainWindow {
             return;
         }
 
+
+
         emit SendSelectedFileUnArchive(selectedFilePath);
+    }
+
+    void MainForm::FileDoubleClicked(const QModelIndex &index) {
+        qDebug()<<"test";
+
     }
 }
 

@@ -21,6 +21,7 @@
 #include <QThread>
 
 #include "logic/MainFormLogic.h"
+#include "ui/ArchiveExplorer.h"
 
 namespace MainWindow
 {
@@ -55,6 +56,7 @@ namespace MainWindow
         void UpdateFileSystem();
         void FileSelectedForArchive();
         void FileSelectedForUnArchive();
+        void FileDoubleClicked(const QModelIndex &index);
         void Clicked();
 
     private:

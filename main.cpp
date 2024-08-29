@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     MainWindow::MainForm form(nullptr, &logic);
 
     form.SetupConnect();
-    form.InitializeUI();
+    form.InitUI();
     form.show();
 
     QObject::connect(&app, &QApplication::aboutToQuit, &logicThread, &QThread::quit);

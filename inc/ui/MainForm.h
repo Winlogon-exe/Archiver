@@ -21,7 +21,7 @@
 #include <QThread>
 
 #include "logic/MainFormLogic.h"
-#include "ui/ArchiveExplorer.h"
+#include "UI/ArchiveExplorer.h"
 
 namespace MainWindow
 {
@@ -34,12 +34,12 @@ namespace MainWindow
         ~MainForm() = default;
 
     public:
-        void InitializeUI();
-        void InitializeFileSystemView();
-        void InitializePathLineEdit();
-        void InitializeButtons();
-        void InitializeToolBar();
-        void InitializeMenuBar();
+        void InitUI();
+        void InitFileSystemView();
+        void InitPathLineEdit();
+        void InitButtons();
+        void InitToolBar();
+        void InitMenuBar();
         void SetupLayout();
         void SetupConnect();
         void SetSizeWindow();
@@ -51,6 +51,9 @@ namespace MainWindow
         void RequestProcessState(QObject *sender);
         void SendSelectedFileArchive(const QString &file);
         void SendSelectedFileUnArchive(const QString &file);
+        void OpenArchiveExplorer(const QString &file);
+        void OpenFile(const QString &pathToFile);
+        void OpenDir(const QString& pathToDir);
 
     public slots:
         void UpdateFileSystem();
@@ -69,7 +72,10 @@ namespace MainWindow
         QTreeView *fileSystemView;
         QToolBar *toolBar;
         QWidget *centralWidget;
+
+    private:
         MainLogic::MainFormLogic* logic;
+        std::shared_ptr<ArchiveExplorer> archiveExplorer;
     };
 }
 #endif //DETROIT_MAINFORM_H

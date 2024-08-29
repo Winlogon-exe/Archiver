@@ -6,9 +6,7 @@
 namespace MainWindow {
 
     MainForm::MainForm(QWidget *parent, MainLogic::MainFormLogic *logic) : QMainWindow(parent), logic(logic)
-    {
-
-    }
+    {}
 
     void MainForm::SetSizeWindow()
     {
@@ -16,21 +14,21 @@ namespace MainWindow {
         this->setMinimumSize(800, 600);
     }
 
-    void MainForm::InitializeUI()
+    void MainForm::InitUI()
     {
         centralWidget = new QWidget(this);
         setCentralWidget(centralWidget);
 
         SetSizeWindow();
-        InitializeFileSystemView();
-        InitializePathLineEdit();
-        InitializeButtons();
-        InitializeToolBar();
-        InitializeMenuBar();
+        InitFileSystemView();
+        InitPathLineEdit();
+        InitButtons();
+        InitToolBar();
+        InitMenuBar();
         SetupLayout();
     }
 
-    void MainForm::InitializeFileSystemView()
+    void MainForm::InitFileSystemView()
     {
         fileSystemModel = new QFileSystemModel(this);
         fileSystemModel->setRootPath("");
@@ -43,19 +41,19 @@ namespace MainWindow {
         connect(fileSystemView, &QTreeView::doubleClicked, this, &MainForm::FileDoubleClicked);
     }
 
-    void MainForm::InitializePathLineEdit()
+    void MainForm::InitPathLineEdit()
     {
         pathLineEdit = CreateLineEdit("", MainLogic::Path_LineEdit);
         pathLineEdit->setPlaceholderText("Путь к файлу");
     }
 
-    void MainForm::InitializeButtons()
+    void MainForm::InitButtons()
     {
         archiveButton = CreateButton("Добавить в архив", MainLogic::ARCHIVE_File);
         extractButton = CreateButton("Извлечь из архива", MainLogic::UNARCHIVE_File);
     }
 
-    void MainForm::InitializeToolBar()
+    void MainForm::InitToolBar()
     {
         toolBar = new QToolBar(this);
         addToolBar(toolBar);
@@ -63,38 +61,38 @@ namespace MainWindow {
         toolBar->addWidget(extractButton);
     }
 
-    void MainForm::InitializeMenuBar()
+    void MainForm::InitMenuBar()
     {
-        auto *MenuBar = new QMenuBar(this);
-        auto *SettingsMenu = new QMenu("Настройки", this);
+        auto *menuBar = new QMenuBar(this);
+        auto *settingsMenu = new QMenu("Настройки", this);
 
-        MenuBar->addMenu(SettingsMenu);
-        setMenuBar(MenuBar);
+        menuBar->addMenu(settingsMenu);
+        setMenuBar(menuBar);
     }
 
     void MainForm::SetupLayout()
     {
-        auto *MainLayout = new QVBoxLayout(centralWidget);
-        MainLayout->addWidget(toolBar);
-        MainLayout->addWidget(pathLineEdit);
-        MainLayout->addWidget(fileSystemView, 1);
-        MainLayout->addStretch();
+        auto *mainLayout = new QVBoxLayout(centralWidget);
+        mainLayout->addWidget(toolBar);
+        mainLayout->addWidget(pathLineEdit);
+        mainLayout->addWidget(fileSystemView, 1);
+        mainLayout->addStretch();
     }
 
     QPushButton *MainForm::CreateButton(const QString &name, MainLogic::ButtonsState button)
     {
-        auto *NewButton = new QPushButton(name, this);
-        emit SetState(NewButton, button);
-        connect(NewButton, &QPushButton::clicked, this, &MainForm::Clicked);
-        return NewButton;
+        auto *newButton = new QPushButton(name, this);
+        emit SetState(newButton, button);
+        connect(newButton, &QPushButton::clicked, this, &MainForm::Clicked);
+        return newButton;
     }
 
     QLineEdit *MainForm::CreateLineEdit(const QString &name, MainLogic::ButtonsState button)
     {
-        auto *NewLineEdit = new QLineEdit(name, this);
-        emit SetState(NewLineEdit, button);
-        connect(NewLineEdit, &QLineEdit::editingFinished, this, &MainForm::Clicked);
-        return NewLineEdit;
+        auto *newLineEdit = new QLineEdit(name, this);
+        emit SetState(newLineEdit, button);
+        connect(newLineEdit, &QLineEdit::editingFinished, this, &MainForm::Clicked);
+        return newLineEdit;
     }
 
     void MainForm::SetupConnect()
@@ -147,19 +145,35 @@ namespace MainWindow {
         QModelIndex selectedIndex = selectedIndexes.first();
         QString selectedFilePath = fileSystemModel->filePath(selectedIndex);
 
-        if(!selectedFilePath.endsWith(".zip")) {
-            qDebug() << "File is not zip";
+        if(!selectedFilePath.endsWith(".zip") && !selectedFilePath.endsWith(".rar")) {
+            qDebug() << "File is not archive";
             return;
         }
-
-
-
         emit SendSelectedFileUnArchive(selectedFilePath);
     }
 
     void MainForm::FileDoubleClicked(const QModelIndex &index) {
-        qDebug()<<"test";
+        archiveExplorer = std::make_shared<ArchiveExplorer>();
+        connect(this, &MainForm::OpenArchiveExplorer, archiveExplorer.get(), &ArchiveExplorer::OpenArchiveExplorer);
+        connect(this, &MainForm::OpenFile, archiveExplorer.get(), &ArchiveExplorer::OpenFileInExplorer);
+        connect(this, &MainForm::OpenDir, archiveExplorer.get(), &ArchiveExplorer::OpenDirInExplorer);
 
+        QString selectedFilePath = fileSystemModel->filePath(index);
+        qDebug()<<selectedFilePath;
+
+        //рефактор проверок что это архив
+        if (selectedFilePath.endsWith(".zip") || selectedFilePath.endsWith(".rar")) {
+            emit OpenArchiveExplorer(selectedFilePath);
+            qDebug()<<"is a Archive";
+        }
+        else if (QFileInfo(selectedFilePath).isFile()) {
+            emit OpenFile(selectedFilePath);
+            qDebug()<<"is a File";
+        }
+        else if (QFileInfo(selectedFilePath).isDir()) {
+            emit OpenDir(selectedFilePath);
+            qDebug()<<"is a Dir";
+        }
     }
 }
 

@@ -24,12 +24,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 qt_add_executable(Detroit
         main.cpp
         inc/ui/MainForm.h
-        src/ui/MainForm.cpp
+        src/UI/MainForm.cpp
 
         inc/logic/MainFormLogic.h
         src/logic/MainFormLogic.cpp
         inc/ui/ArchiveExplorer.h
-        src/ui/ArchiveExplorer.cpp
+        src/UI/ArchiveExplorer.cpp
 )
 
 target_link_libraries(Detroit PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ZLIB::ZLIB libzip::zip)

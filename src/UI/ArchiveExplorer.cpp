@@ -3,16 +3,17 @@
 //
 #include "ui/ArchiveExplorer.h"
 
-ArchiveExplorer::ArchiveExplorer(QWidget *parent) {
+ArchiveExplorer::ArchiveExplorer(QWidget *parent)
+{}
 
-}
-
-void ArchiveExplorer::OpenArchiveExplorer(const QString &file) {
+void ArchiveExplorer::OpenArchiveExplorer(const QString &file)
+{
     SetupTreeView(file);
     SetupLayout();
 }
 
-void ArchiveExplorer::SetupTreeView(const QString &file) {
+void ArchiveExplorer::SetupTreeView(const QString &file)
+{
     QList<QString> fileList = getArchiveFileList(file);
     treeView = new QTreeView(this);
     treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -30,7 +31,8 @@ void ArchiveExplorer::SetupTreeView(const QString &file) {
     treeView->setModel(model);
 }
 
-void ArchiveExplorer::SetupLayout() {
+void ArchiveExplorer::SetupLayout()
+{
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(treeView);
 
@@ -39,7 +41,8 @@ void ArchiveExplorer::SetupLayout() {
     this->show();
 }
 
-QList<QString> ArchiveExplorer::getArchiveFileList(const QString &archivePath) {
+QList<QString> ArchiveExplorer::getArchiveFileList(const QString &archivePath)
+{
     QList<QString> fileList;
 
     int err = 0;
@@ -63,11 +66,13 @@ QList<QString> ArchiveExplorer::getArchiveFileList(const QString &archivePath) {
     return fileList;
 }
 
-void ArchiveExplorer::SetupConnect() {
+void ArchiveExplorer::SetupConnect()
+{
     connect(treeView, &QTreeView::doubleClicked, this, &ArchiveExplorer::OpenFileInArchive);
 }
 
-void ArchiveExplorer::OpenFileInArchive(const QModelIndex &index) {
+void ArchiveExplorer::OpenFileInArchive(const QModelIndex &index)
+{
 
 }
 
@@ -75,13 +80,3 @@ ArchiveExplorer::~ArchiveExplorer()
 {
 
 }
-
-void ArchiveExplorer::OpenFileInExplorer(const QString& pathToFile) {
-    QDesktopServices::openUrl(pathToFile);
-}
-
-void ArchiveExplorer::OpenDirInExplorer(const QString& pathToDir) {
-
-}
-
-

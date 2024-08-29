@@ -23,7 +23,8 @@ namespace MainLogic {
     enum ButtonsState {
         ARCHIVE_File,
         UNARCHIVE_File,
-        Path_LineEdit
+        Path_LineEdit,
+        Back
     };
 
     class MainFormLogic : public QObject {
@@ -41,11 +42,12 @@ namespace MainLogic {
     public slots:
         void ButtonState(QObject *sender, ButtonsState state);
         void ProcessState(QObject *sender);
-        static void Archive(const QString &path);
-        static void UnArchive(const QString &path);
+        void Archive(const QString &path);
+        void UnArchive(const QString &path);
 
     signals:
         void UpdateFileSystem();
+        void BackFileSystem();
         void ArchiveFileButton();
         void UnarchiveFileButton();
 

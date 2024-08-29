@@ -14,6 +14,7 @@
 #include <QLabel>
 #include <QWidget>
 #include <QToolBar>
+#include <QListView>
 #include <QMenuBar>
 #include <QTreeView>
 #include <QFileSystemModel>
@@ -57,6 +58,7 @@ namespace MainWindow
 
     public slots:
         void UpdateFileSystem();
+        void BackFileSystem();
         void FileSelectedForArchive();
         void FileSelectedForUnArchive();
         void FileDoubleClicked(const QModelIndex &index);
@@ -65,11 +67,11 @@ namespace MainWindow
     private:
         QPushButton *archiveButton;
         QPushButton *extractButton;
-
+        QPushButton *backButton;
     private:
         QFileSystemModel *fileSystemModel;
         QLineEdit *pathLineEdit;
-        QTreeView *fileSystemView;
+        QListView *listView;
         QToolBar *toolBar;
         QWidget *centralWidget;
 

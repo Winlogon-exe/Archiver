@@ -35,8 +35,6 @@ public:
 public slots:
     void OpenArchiveExplorer(const QString &file);
     void OpenFileInArchive(const QModelIndex &index);
-    void OpenFileInExplorer(const QString& pathToFile);
-    void OpenDirInExplorer(const QString& pathToDir);
 
 signals:
 

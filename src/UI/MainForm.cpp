@@ -33,12 +33,12 @@ namespace MainWindow {
         fileSystemModel = new QFileSystemModel(this);
         fileSystemModel->setRootPath("");
 
-        fileSystemView = new QTreeView(this);
-        fileSystemView->setModel(fileSystemModel);
-        fileSystemView->setRootIndex(fileSystemModel->index(""));
-        fileSystemView->setColumnWidth(0, 250);
+        listView = new QListView(this);
+        listView->setModel(fileSystemModel);
+        listView->setRootIndex(fileSystemModel->index(""));
+        //listView->setColumnWidth(0, 250);
 
-        connect(fileSystemView, &QTreeView::doubleClicked, this, &MainForm::FileDoubleClicked);
+        connect(listView, &QTreeView::doubleClicked, this, &MainForm::FileDoubleClicked);
     }
 
     void MainForm::InitPathLineEdit()
@@ -51,6 +51,7 @@ namespace MainWindow {
     {
         archiveButton = CreateButton("Добавить в архив", MainLogic::ARCHIVE_File);
         extractButton = CreateButton("Извлечь из архива", MainLogic::UNARCHIVE_File);
+        backButton = CreateButton("Назад", MainLogic::Back);
     }
 
     void MainForm::InitToolBar()
@@ -59,6 +60,7 @@ namespace MainWindow {
         addToolBar(toolBar);
         toolBar->addWidget(archiveButton);
         toolBar->addWidget(extractButton);
+        toolBar->addWidget(backButton);
     }
 
     void MainForm::InitMenuBar()
@@ -75,7 +77,7 @@ namespace MainWindow {
         auto *mainLayout = new QVBoxLayout(centralWidget);
         mainLayout->addWidget(toolBar);
         mainLayout->addWidget(pathLineEdit);
-        mainLayout->addWidget(fileSystemView, 1);
+        mainLayout->addWidget(listView, 1);
         mainLayout->addStretch();
     }
 
@@ -107,6 +109,7 @@ namespace MainWindow {
         connect(logic, &MainLogic::MainFormLogic::UpdateFileSystem, this, &MainForm::UpdateFileSystem);
         connect(logic, &MainLogic::MainFormLogic::ArchiveFileButton, this, &MainForm::FileSelectedForArchive);
         connect(logic, &MainLogic::MainFormLogic::UnarchiveFileButton, this, &MainForm::FileSelectedForUnArchive);
+        connect(logic, &MainLogic::MainFormLogic::BackFileSystem, this, &MainForm::BackFileSystem);
     }
 
     void MainForm::Clicked()
@@ -117,12 +120,12 @@ namespace MainWindow {
     void MainForm::UpdateFileSystem()
     {
         fileSystemModel->setRootPath(pathLineEdit->text());
-        fileSystemView->setRootIndex(fileSystemModel->index(pathLineEdit->text()));
+        listView->setRootIndex(fileSystemModel->index(pathLineEdit->text()));
     }
 
     void MainForm::FileSelectedForArchive()
     {
-        QModelIndexList selectedIndexes = fileSystemView->selectionModel()->selectedIndexes();
+        QModelIndexList selectedIndexes = listView->selectionModel()->selectedIndexes();
 
         if (selectedIndexes.isEmpty()) {
             qDebug() << "Index is empty";
@@ -134,8 +137,9 @@ namespace MainWindow {
         emit SendSelectedFileArchive(selectedFilePath);
     }
 
-    void MainForm::FileSelectedForUnArchive() {
-        QModelIndexList selectedIndexes = fileSystemView->selectionModel()->selectedIndexes();
+    void MainForm::FileSelectedForUnArchive()
+    {
+        QModelIndexList selectedIndexes = listView->selectionModel()->selectedIndexes();
 
         if (selectedIndexes.isEmpty()) {
             qDebug() << "Index is empty";
@@ -145,35 +149,40 @@ namespace MainWindow {
         QModelIndex selectedIndex = selectedIndexes.first();
         QString selectedFilePath = fileSystemModel->filePath(selectedIndex);
 
-        if(!selectedFilePath.endsWith(".zip") && !selectedFilePath.endsWith(".rar")) {
+        if (!selectedFilePath.endsWith(".zip") && !selectedFilePath.endsWith(".rar")) {
             qDebug() << "File is not archive";
             return;
         }
         emit SendSelectedFileUnArchive(selectedFilePath);
     }
 
-    void MainForm::FileDoubleClicked(const QModelIndex &index) {
+    void MainForm::FileDoubleClicked(const QModelIndex &index)
+    {
         archiveExplorer = std::make_shared<ArchiveExplorer>();
         connect(this, &MainForm::OpenArchiveExplorer, archiveExplorer.get(), &ArchiveExplorer::OpenArchiveExplorer);
-        connect(this, &MainForm::OpenFile, archiveExplorer.get(), &ArchiveExplorer::OpenFileInExplorer);
-        connect(this, &MainForm::OpenDir, archiveExplorer.get(), &ArchiveExplorer::OpenDirInExplorer);
 
         QString selectedFilePath = fileSystemModel->filePath(index);
-        qDebug()<<selectedFilePath;
+        qDebug() << selectedFilePath;
 
         //рефактор проверок что это архив
         if (selectedFilePath.endsWith(".zip") || selectedFilePath.endsWith(".rar")) {
+            qDebug() << "is a Archive";
             emit OpenArchiveExplorer(selectedFilePath);
-            qDebug()<<"is a Archive";
         }
         else if (QFileInfo(selectedFilePath).isFile()) {
-            emit OpenFile(selectedFilePath);
-            qDebug()<<"is a File";
+            qDebug() << "is a File";
+            QDesktopServices::openUrl(QUrl::fromLocalFile(selectedFilePath));
         }
         else if (QFileInfo(selectedFilePath).isDir()) {
-            emit OpenDir(selectedFilePath);
-            qDebug()<<"is a Dir";
+            qDebug() << "is a Dir";
+            listView->setRootIndex(index);
         }
+    }
+
+    void MainForm::BackFileSystem() {
+        QModelIndex currentIndex = listView->rootIndex();
+        QModelIndex parentIndex = fileSystemModel->index(currentIndex.parent().row(), currentIndex.parent().column());
+        listView->setRootIndex(parentIndex);
     }
 }
 

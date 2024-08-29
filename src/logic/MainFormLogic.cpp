@@ -21,6 +21,7 @@ namespace MainLogic
         logicMap[ARCHIVE_File] =   [this]() { emit ArchiveFileButton(); };
         logicMap[UNARCHIVE_File] = [this]() { emit UnarchiveFileButton(); };
         logicMap[Path_LineEdit] =  [this]() { emit UpdateFileSystem(); };
+        logicMap[Back] =           [this]() { emit BackFileSystem(); };
     }
 
     void MainFormLogic::ProcessState(QObject *sender)

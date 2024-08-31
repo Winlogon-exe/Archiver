@@ -22,7 +22,6 @@
 #include <QThread>
 
 #include "logic/MainFormLogic.h"
-#include "UI/ArchiveExplorer.h"
 
 namespace MainWindow
 {
@@ -52,17 +51,17 @@ namespace MainWindow
         void RequestProcessState(QObject *sender);
         void SendSelectedFileArchive(const QString &file);
         void SendSelectedFileUnArchive(const QString &file);
-        void OpenArchiveExplorer(const QString &file);
-        void OpenFile(const QString &pathToFile);
-        void OpenDir(const QString& pathToDir);
+        void OpenArchive(const QModelIndex &index, QFileSystemModel *model);
 
     public slots:
-        void UpdateFileSystem();
+        void UpdateFileSystemForLineEdit();
         void BackFileSystem();
         void FileSelectedForArchive();
         void FileSelectedForUnArchive();
-        void FileDoubleClicked(const QModelIndex &index);
         void Clicked();
+        void FileDoubleClicked(const QModelIndex &index);
+        void SetListView(const QModelIndex &index);
+        void SetExplorer(const QString &path);
 
     private:
         QPushButton *archiveButton;
@@ -77,7 +76,6 @@ namespace MainWindow
 
     private:
         MainLogic::MainFormLogic* logic;
-        std::shared_ptr<ArchiveExplorer> archiveExplorer;
     };
 }
 #endif //DETROIT_MAINFORM_H

@@ -175,4 +175,21 @@ namespace MainLogic
         zip_close(archive);
         qDebug() << "Unzipping completed to:" << destDirPath;
     }
+
+    void MainFormLogic::FileDoubleClicked(const QModelIndex &index, QFileSystemModel *fileSystemModel) {
+        QString selectedFilePath = fileSystemModel->filePath(index);
+        qDebug() << selectedFilePath;
+
+        //рефактор проверок что это архив
+        if (selectedFilePath.endsWith(".zip") || selectedFilePath.endsWith(".rar")) {
+            //возможно сначала сделать логику открытия архива а потом только отправлять сигнал о том чтобы обновить UI
+            emit OpenArchiveInExplorer(selectedFilePath);
+        }
+        else if (QFileInfo(selectedFilePath).isFile()) {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(selectedFilePath));
+        }
+        else if (QFileInfo(selectedFilePath).isDir()) {
+            emit UpdateListView(index);
+        }
+    }
 }

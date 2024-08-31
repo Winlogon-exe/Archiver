@@ -10,6 +10,7 @@
 #include <functional>
 #include <QFile>
 #include <QByteArray>
+#include <QFileSystemModel>
 #include <QFileInfo>
 #include <QDir>
 #include <QThread>
@@ -17,6 +18,8 @@
 #include <zconf.h>
 #include <zlib.h>
 #include <zip.h>
+
+#include "UI/ArchiveExplorer.h"
 
 namespace MainLogic {
 
@@ -36,24 +39,28 @@ namespace MainLogic {
 
     private:
         void InitializeMapButton();
-        static bool AddFileToZip(zip_t *archive,const QString &filePath, const QString &relativePathInArchive);
-        static bool AddFolderToZip(zip_t *archive,const QString &filePath, const QString &relativePathInArchive);
+        bool AddFileToZip(zip_t *archive,const QString &filePath, const QString &relativePathInArchive);
+        bool AddFolderToZip(zip_t *archive,const QString &filePath, const QString &relativePathInArchive);
 
     public slots:
         void ButtonState(QObject *sender, ButtonsState state);
         void ProcessState(QObject *sender);
         void Archive(const QString &path);
         void UnArchive(const QString &path);
+        void FileDoubleClicked(const QModelIndex &index, QFileSystemModel *model);
 
     signals:
         void UpdateFileSystem();
         void BackFileSystem();
         void ArchiveFileButton();
         void UnarchiveFileButton();
+        void OpenArchiveInExplorer(const QString &path);
+        void UpdateListView(const QModelIndex &index);
 
     private:
         std::map<ButtonsState, std::function<void()>> logicMap;
         std::map<QObject *, ButtonsState> buttonStateMap;
+        //std::shared_ptr<ArchiveExplorer> archiveExplorer;
     };
 }
 #endif //DETROIT_MAINFORMLOGIC_H

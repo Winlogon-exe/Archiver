@@ -17,6 +17,7 @@
 #include <QListView>
 #include <QMenuBar>
 #include <QTreeView>
+#include <QContextMenuEvent>
 #include <QFileSystemModel>
 #include <QLineEdit>
 #include <QThread>
@@ -32,6 +33,10 @@ namespace MainWindow
         explicit MainForm(QWidget *parent = nullptr, MainLogic::MainFormLogic *logic = nullptr);
 
         ~MainForm() = default;
+
+    protected:
+        void contextMenuEvent(QContextMenuEvent *event) override;
+        void keyPressEvent(QKeyEvent *event) override;
 
     public:
         void InitUI();
@@ -67,6 +72,7 @@ namespace MainWindow
         QPushButton *archiveButton;
         QPushButton *extractButton;
         QPushButton *backButton;
+
     private:
         QFileSystemModel *fileSystemModel;
         QLineEdit *pathLineEdit;

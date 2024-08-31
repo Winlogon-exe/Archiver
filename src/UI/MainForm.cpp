@@ -161,26 +161,69 @@ namespace MainWindow {
         emit SendSelectedFileUnArchive(selectedFilePath);
     }
 
-    void MainForm::BackFileSystem() {
+    void MainForm::BackFileSystem()
+    {
         QModelIndex currentIndex = listView->rootIndex();
         QString currentPath = fileSystemModel->filePath(currentIndex);
         QString parentPath = QFileInfo(currentPath).absolutePath();
-
         if (parentPath != currentPath) {
             listView->setRootIndex(fileSystemModel->index(parentPath));
         }
     }
 
-    void MainForm::FileDoubleClicked(const QModelIndex &index) {
+    void MainForm::FileDoubleClicked(const QModelIndex &index)
+    {
         emit OpenArchive(index,fileSystemModel);
     }
 
-    void MainForm::SetListView(const QModelIndex &index) {
+    void MainForm::SetListView(const QModelIndex &index)
+    {
         listView->setRootIndex(index);
     }
 
-    void MainForm::SetExplorer(const QString &path) {
+    void MainForm::SetExplorer(const QString &path)
+    {
         qDebug()<<"test";
+    }
+
+    void MainForm::contextMenuEvent(QContextMenuEvent *event)
+    {
+        QMenu contextMenu(this);
+
+        QAction *archiveAction = contextMenu.addAction("Добавить в архив");
+        QAction *extractAction = contextMenu.addAction("Извлечь из архива");
+        QAction *backAction = contextMenu.addAction("Назад");
+
+        connect(archiveAction, &QAction::triggered, this, &MainForm::FileSelectedForArchive);
+        connect(extractAction, &QAction::triggered, this, &MainForm::FileSelectedForUnArchive);
+        connect(backAction, &QAction::triggered, this, &MainForm::BackFileSystem);
+
+        contextMenu.exec(event->globalPos());
+    }
+
+    void MainForm::keyPressEvent(QKeyEvent *event)
+    {
+        if (event->key() == Qt::Key_Delete) {
+            QModelIndexList selectedIndexes = listView->selectionModel()->selectedIndexes();
+
+            if (!selectedIndexes.isEmpty()) {
+                QString selectedFilePath = fileSystemModel->filePath(selectedIndexes.first());
+                QFileInfo fileInfo(selectedFilePath);
+
+                if (fileInfo.isFile()) {
+                    QFile::remove(selectedFilePath);
+                    qDebug() << "File remove:" << selectedFilePath;
+                }
+                else if (fileInfo.isDir()) {
+                    QDir dir(selectedFilePath);
+                    dir.removeRecursively();
+                    qDebug() << "Dir remove:" << selectedFilePath;
+                }
+            }
+        }
+        else {
+            QMainWindow::keyPressEvent(event);
+        }
     }
 }
 

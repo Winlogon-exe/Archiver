@@ -31,7 +31,6 @@ namespace MainWindow
 
     public:
         explicit MainForm(QWidget *parent = nullptr, MainLogic::MainFormLogic *logic = nullptr);
-
         ~MainForm() = default;
 
     protected:

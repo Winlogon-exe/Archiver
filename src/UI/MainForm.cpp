@@ -166,8 +166,12 @@ namespace MainWindow {
         QModelIndex currentIndex = listView->rootIndex();
         QString currentPath = fileSystemModel->filePath(currentIndex);
         QString parentPath = QFileInfo(currentPath).absolutePath();
+
         if (parentPath != currentPath) {
             listView->setRootIndex(fileSystemModel->index(parentPath));
+        }
+        else {
+            listView->setRootIndex(fileSystemModel->index(""));
         }
     }
 

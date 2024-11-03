@@ -8,12 +8,6 @@ namespace MainWindow {
     MainForm::MainForm(QWidget *parent, MainLogic::MainFormLogic *logic) : QMainWindow(parent), logic(logic)
     {}
 
-    void MainForm::SetSizeWindow()
-    {
-        this->adjustSize();
-        this->setMinimumSize(800, 600);
-    }
-
     void MainForm::InitUI()
     {
         centralWidget = new QWidget(this);
@@ -26,6 +20,12 @@ namespace MainWindow {
         InitToolBar();
         InitMenuBar();
         SetupLayout();
+    }
+
+    void MainForm::SetSizeWindow()
+    {
+        this->adjustSize();
+        this->setMinimumSize(800, 600);
     }
 
     void MainForm::InitFileSystemView()
@@ -111,7 +111,7 @@ namespace MainWindow {
         //из logic в UI
         connect(logic, &MainLogic::MainFormLogic::UpdateFileSystem, this, &MainForm::UpdateFileSystemForLineEdit);
         connect(logic, &MainLogic::MainFormLogic::ArchiveFileButton, this, &MainForm::FileSelectedForArchive);
-        connect(logic, &MainLogic::MainFormLogic::UnarchiveFileButton, this, &MainForm::FileSelectedForUnArchive);
+        connect(logic, &MainLogic::MainFormLogic::UnArchiveFileButton, this, &MainForm::FileSelectedForUnArchive);
         connect(logic, &MainLogic::MainFormLogic::BackFileSystem, this, &MainForm::BackFileSystem);
         connect(logic, &MainLogic::MainFormLogic::UpdateListView, this, &MainForm::SetListView);
         connect(logic, &MainLogic::MainFormLogic::OpenArchiveInExplorer, this, &MainForm::SetExplorer);
@@ -185,9 +185,23 @@ namespace MainWindow {
         listView->setRootIndex(index);
     }
 
-    void MainForm::SetExplorer(const QString &path)
+    void MainForm::SetExplorer(const QModelIndex &index,const QString &path)
     {
-        qDebug()<<"test";
+        QStandardItemModel *archiveModel = new QStandardItemModel();
+
+        QDialog *dialog = new QDialog();
+        QListView *listView = new QListView(dialog);
+        listView->setModel(archiveModel);
+
+        QVBoxLayout *layout = new QVBoxLayout(dialog);
+        layout->addWidget(listView);
+        dialog->setLayout(layout);
+        dialog->setWindowTitle("Содержимое архива");
+        dialog->resize(400, 300);
+        dialog->exec();
+
+        // После закрытия окна, можно удалить временную модель
+        delete archiveModel;
     }
 
     void MainForm::contextMenuEvent(QContextMenuEvent *event)
@@ -205,6 +219,34 @@ namespace MainWindow {
         contextMenu.exec(event->globalPos());
     }
 
+    bool MainForm::showMessageBox(QWidget* parent, const QString& title, const QString& message, MessageBoxType type)
+    {
+        QMessageBox msgBox(parent);
+        msgBox.setWindowTitle(title);
+        msgBox.setText(message);
+
+        switch (type) {
+            case Info:
+                msgBox.setIcon(QMessageBox::Information);
+                msgBox.setStandardButtons(QMessageBox::Ok);
+                break;
+            case Warning:
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setStandardButtons(QMessageBox::Ok);
+                break;
+            case Critical:
+                msgBox.setIcon(QMessageBox::Critical);
+                msgBox.setStandardButtons(QMessageBox::Ok);
+                break;
+            case Question:
+                msgBox.setIcon(QMessageBox::Question);
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                break;
+        }
+
+        return msgBox.exec() == QMessageBox::Yes;
+    }
+
     void MainForm::keyPressEvent(QKeyEvent *event)
     {
         if (event->key() == Qt::Key_Delete) {
@@ -213,6 +255,10 @@ namespace MainWindow {
             if (!selectedIndexes.isEmpty()) {
                 QString selectedFilePath = fileSystemModel->filePath(selectedIndexes.first());
                 QFileInfo fileInfo(selectedFilePath);
+
+                if (!showMessageBox(this, "Подтверждение удаления", "Вы действительно хотите удалить " + selectedFilePath + "?", Question)) {
+                    return;
+                }
 
                 if (fileInfo.isFile()) {
                     QFile::remove(selectedFilePath);

@@ -26,6 +26,13 @@
 
 namespace MainWindow
 {
+    enum MessageBoxType {
+        Info,
+        Warning,
+        Critical,
+        Question
+    };
+
     class MainForm : public QMainWindow {
     Q_OBJECT
 
@@ -65,7 +72,8 @@ namespace MainWindow
         void Clicked();
         void FileDoubleClicked(const QModelIndex &index);
         void SetListView(const QModelIndex &index);
-        void SetExplorer(const QString &path);
+        void SetExplorer(const QModelIndex &index,const QString &path);
+        bool showMessageBox(QWidget* parent, const QString& title, const QString& message, MessageBoxType type);
 
     private:
         QPushButton *archiveButton;

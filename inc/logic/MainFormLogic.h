@@ -18,6 +18,8 @@
 #include <zconf.h>
 #include <zlib.h>
 #include <zip.h>
+#include <QDialog>
+#include <QListView>
 
 #include "UI/ArchiveExplorer.h"
 
@@ -53,9 +55,10 @@ namespace MainLogic {
         void UpdateFileSystem();
         void BackFileSystem();
         void ArchiveFileButton();
-        void UnarchiveFileButton();
-        void OpenArchiveInExplorer(const QString &path);
+        void UnArchiveFileButton();
+        void OpenArchiveInExplorer(const QModelIndex &index,const QString &path);
         void UpdateListView(const QModelIndex &index);
+       // void SetModelListView(QStandardItemModel);
 
     private:
         std::map<ButtonsState, std::function<void()>> logicMap;

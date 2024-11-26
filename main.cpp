@@ -1,5 +1,6 @@
 #include <QApplication>
 #include "ui/MainForm.h"
+#include "logic/Register.h"
 
 // zip не открывается в проводнике
 // нет окна выбора файлов при архивации
@@ -7,20 +8,37 @@
 // нет видимости что если файл занят другим процессом его нельзя удалить
 // нет прогресса/времени архивации
 // нет названия/иконки
-// в windows нет этой проги чтобы "открыть с помощью"
 
+void addToRegister() {
+    Register reg;
+    if (!reg.isRegisteredForOpenWith())
+    {
+        reg.registerAppForOpenWith();
+    }
+    else
+    {
+        qDebug() << "Application already registered for 'Open With'.";
+    }
+}
+
+//аргументы принимает потому что при "открыть с помощью" нужно получить путь к архиву
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    if (argc > 1)
+    {
+        QString filePath = argv[1];
+        qDebug() << filePath;
+    }
+
+    addToRegister();
 
     QThread logicThread;
-
-    MainLogic::MainFormLogic logic;
+    MainLogic::MainForm logic;
     logic.moveToThread(&logicThread);
     logicThread.start();
 
     MainWindow::MainForm form(nullptr, &logic);
-
     form.SetupConnect();
     form.InitUI();
     form.show();

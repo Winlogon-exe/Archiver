@@ -9,9 +9,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Убедитесь, что путь к Qt правильный
 set(CMAKE_PREFIX_PATH "D:/Qt/6.7.2/mingw_64")
 set(CMAKE_PREFIX_PATH "D:\\vcpkg\\installed\\x64-windows")
+
+if(WIN32)
+    set(APP_ICON_RESOURCE "${CMAKE_CURRENT_SOURCE_DIR}/app_icon.rc")
+endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
@@ -26,10 +29,16 @@ qt_add_executable(Detroit
         inc/ui/MainForm.h
         src/UI/MainForm.cpp
 
-        inc/logic/MainFormLogic.h
-        src/logic/MainFormLogic.cpp
+        inc/logic/MainForm.h
+        src/logic/MainForm.cpp
         inc/ui/ArchiveExplorer.h
         src/UI/ArchiveExplorer.cpp
+        inc/logic/Register.h
+        src/logic/Register.cpp
 )
+
+if(WIN32)
+    target_sources(Detroit PRIVATE ${APP_ICON_RESOURCE})
+endif()
 
 target_link_libraries(Detroit PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ZLIB::ZLIB libzip::zip)

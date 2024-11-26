@@ -18,26 +18,23 @@
 #include <zconf.h>
 #include <zlib.h>
 #include <zip.h>
-#include <QDialog>
-#include <QListView>
-
 #include "UI/ArchiveExplorer.h"
 
 namespace MainLogic {
 
     enum ButtonsState {
-        ARCHIVE_File,
-        UNARCHIVE_File,
-        Path_LineEdit,
-        Back
+        ARCHIVE,
+        UNARCHIVE,
+        PATH,
+        BACK
     };
 
-    class MainFormLogic : public QObject {
+    class MainForm : public QObject {
     Q_OBJECT
 
     public:
-        MainFormLogic();
-        ~MainFormLogic() override = default;
+        MainForm();
+        ~MainForm() override = default;
 
     private:
         void InitializeMapButton();
@@ -66,4 +63,4 @@ namespace MainLogic {
         //std::shared_ptr<ArchiveExplorer> archiveExplorer;
     };
 }
-#endif //DETROIT_MAINFORMLOGIC_H
+#endif //DETROIT_MAINFORM_H

@@ -5,7 +5,7 @@
 
 namespace MainWindow {
 
-    MainForm::MainForm(QWidget *parent, MainLogic::MainFormLogic *logic) : QMainWindow(parent), logic(logic)
+    MainForm::MainForm(QWidget *parent, MainLogic::MainForm *logic) : QMainWindow(parent), logic(logic)
     {}
 
     void MainForm::InitUI()
@@ -14,6 +14,7 @@ namespace MainWindow {
         setCentralWidget(centralWidget);
 
         SetSizeWindow();
+        setIcon();
         InitFileSystemView();
         InitPathLineEdit();
         InitButtons();
@@ -41,15 +42,15 @@ namespace MainWindow {
 
     void MainForm::InitPathLineEdit()
     {
-        pathLineEdit = CreateLineEdit("", MainLogic::Path_LineEdit);
+        pathLineEdit = CreateLineEdit("", MainLogic::PATH);
         pathLineEdit->setPlaceholderText("Путь к файлу");
     }
 
     void MainForm::InitButtons()
     {
-        archiveButton = CreateButton("Добавить в архив", MainLogic::ARCHIVE_File);
-        extractButton = CreateButton("Извлечь из архива", MainLogic::UNARCHIVE_File);
-        backButton = CreateButton("↑", MainLogic::Back);
+        archiveButton = CreateButton("Добавить в архив", MainLogic::ARCHIVE);
+        extractButton = CreateButton("Извлечь из архива", MainLogic::UNARCHIVE);
+        backButton = CreateButton("↑", MainLogic::BACK);
     }
 
     void MainForm::InitToolBar()
@@ -102,19 +103,19 @@ namespace MainWindow {
     void MainForm::SetupConnect()
     {
         //из UI в logic
-        connect(this, &MainForm::SetState, logic, &MainLogic::MainFormLogic::ButtonState);
-        connect(this, &MainForm::RequestProcessState, logic, &MainLogic::MainFormLogic::ProcessState);
-        connect(this, &MainForm::SendSelectedFileArchive, logic, &MainLogic::MainFormLogic::Archive);
-        connect(this, &MainForm::SendSelectedFileUnArchive, logic, &MainLogic::MainFormLogic::UnArchive);
-        connect(this, &MainForm::OpenArchive, logic, &MainLogic::MainFormLogic::FileDoubleClicked);
+        connect(this, &MainForm::SetState, logic, &MainLogic::MainForm::ButtonState);
+        connect(this, &MainForm::RequestProcessState, logic, &MainLogic::MainForm::ProcessState);
+        connect(this, &MainForm::SendSelectedFileArchive, logic, &MainLogic::MainForm::Archive);
+        connect(this, &MainForm::SendSelectedFileUnArchive, logic, &MainLogic::MainForm::UnArchive);
+        connect(this, &MainForm::OpenArchive, logic, &MainLogic::MainForm::FileDoubleClicked);
 
         //из logic в UI
-        connect(logic, &MainLogic::MainFormLogic::UpdateFileSystem, this, &MainForm::UpdateFileSystemForLineEdit);
-        connect(logic, &MainLogic::MainFormLogic::ArchiveFileButton, this, &MainForm::FileSelectedForArchive);
-        connect(logic, &MainLogic::MainFormLogic::UnArchiveFileButton, this, &MainForm::FileSelectedForUnArchive);
-        connect(logic, &MainLogic::MainFormLogic::BackFileSystem, this, &MainForm::BackFileSystem);
-        connect(logic, &MainLogic::MainFormLogic::UpdateListView, this, &MainForm::SetListView);
-        connect(logic, &MainLogic::MainFormLogic::OpenArchiveInExplorer, this, &MainForm::SetExplorer);
+        connect(logic, &MainLogic::MainForm::UpdateFileSystem, this, &MainForm::UpdateFileSystemForLineEdit);
+        connect(logic, &MainLogic::MainForm::ArchiveFileButton, this, &MainForm::FileSelectedForArchive);
+        connect(logic, &MainLogic::MainForm::UnArchiveFileButton, this, &MainForm::FileSelectedForUnArchive);
+        connect(logic, &MainLogic::MainForm::BackFileSystem, this, &MainForm::BackFileSystem);
+        connect(logic, &MainLogic::MainForm::UpdateListView, this, &MainForm::SetListView);
+        connect(logic, &MainLogic::MainForm::OpenArchiveInExplorer, this, &MainForm::OpenFilesInArchive);
     }
 
     void MainForm::Clicked()
@@ -185,23 +186,9 @@ namespace MainWindow {
         listView->setRootIndex(index);
     }
 
-    void MainForm::SetExplorer(const QModelIndex &index,const QString &path)
+    void MainForm::OpenFilesInArchive(const QModelIndex &index,const QString &path)
     {
-        QStandardItemModel *archiveModel = new QStandardItemModel();
 
-        QDialog *dialog = new QDialog();
-        QListView *listView = new QListView(dialog);
-        listView->setModel(archiveModel);
-
-        QVBoxLayout *layout = new QVBoxLayout(dialog);
-        layout->addWidget(listView);
-        dialog->setLayout(layout);
-        dialog->setWindowTitle("Содержимое архива");
-        dialog->resize(400, 300);
-        dialog->exec();
-
-        // После закрытия окна, можно удалить временную модель
-        delete archiveModel;
     }
 
     void MainForm::contextMenuEvent(QContextMenuEvent *event)
@@ -274,6 +261,11 @@ namespace MainWindow {
         else {
             QMainWindow::keyPressEvent(event);
         }
+    }
+
+    void MainForm::setIcon()
+    {
+        this->setWindowIcon(QIcon("../icons/app_icon.ico"));
     }
 }
 

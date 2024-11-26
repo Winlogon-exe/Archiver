@@ -22,7 +22,8 @@
 #include <QLineEdit>
 #include <QThread>
 
-#include "logic/MainFormLogic.h"
+
+#include "logic/MainForm.h"
 
 namespace MainWindow
 {
@@ -37,7 +38,7 @@ namespace MainWindow
     Q_OBJECT
 
     public:
-        explicit MainForm(QWidget *parent = nullptr, MainLogic::MainFormLogic *logic = nullptr);
+        explicit MainForm(QWidget *parent = nullptr, MainLogic::MainForm *logic = nullptr);
         ~MainForm() = default;
 
     protected:
@@ -54,6 +55,7 @@ namespace MainWindow
         void SetupLayout();
         void SetupConnect();
         void SetSizeWindow();
+        void setIcon();
         QPushButton *CreateButton(const QString &name, MainLogic::ButtonsState button);
         QLineEdit *CreateLineEdit(const QString &name, MainLogic::ButtonsState button);
 
@@ -72,7 +74,7 @@ namespace MainWindow
         void Clicked();
         void FileDoubleClicked(const QModelIndex &index);
         void SetListView(const QModelIndex &index);
-        void SetExplorer(const QModelIndex &index,const QString &path);
+        void OpenFilesInArchive(const QModelIndex &index,const QString &path);
         bool showMessageBox(QWidget* parent, const QString& title, const QString& message, MessageBoxType type);
 
     private:
@@ -88,7 +90,7 @@ namespace MainWindow
         QWidget *centralWidget;
 
     private:
-        MainLogic::MainFormLogic* logic;
+        MainLogic::MainForm* logic;
     };
 }
 #endif //DETROIT_MAINFORM_H

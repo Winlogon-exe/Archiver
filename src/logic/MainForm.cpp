@@ -2,25 +2,25 @@
 // Created by winlogon on 06.08.2024.
 //
 
-#include "logic/MainFormLogic.h"
+#include "logic/MainForm.h"
 
 namespace MainLogic {
-    MainFormLogic::MainFormLogic() {
+    MainForm::MainForm() {
         InitializeMapButton();
     }
 
-    void MainFormLogic::ButtonState(QObject *sender, ButtonsState state) {
+    void MainForm::ButtonState(QObject *sender, ButtonsState state) {
         buttonStateMap[sender] = state;
     }
 
-    void MainFormLogic::InitializeMapButton() {
-        logicMap[ARCHIVE_File] = [this]() { emit ArchiveFileButton(); };
-        logicMap[UNARCHIVE_File] = [this]() { emit UnArchiveFileButton(); };
-        logicMap[Path_LineEdit] = [this]() { emit UpdateFileSystem(); };
-        logicMap[Back] = [this]() { emit BackFileSystem(); };
+    void MainForm::InitializeMapButton() {
+        logicMap[ARCHIVE]   = [this]() { emit ArchiveFileButton();};
+        logicMap[UNARCHIVE] = [this]() { emit UnArchiveFileButton();};
+        logicMap[PATH]      = [this]() { emit UpdateFileSystem();};
+        logicMap[BACK]      = [this]() { emit BackFileSystem();};
     }
 
-    void MainFormLogic::ProcessState(QObject *sender) {
+    void MainForm::ProcessState(QObject *sender) {
         ButtonsState state = buttonStateMap[sender];
         auto it = logicMap.find(state);
 
@@ -29,7 +29,7 @@ namespace MainLogic {
         }
     }
 
-    void MainFormLogic::Archive(const QString &absolutePath) {
+    void MainForm::Archive(const QString &absolutePath) {
         int errorDir = 0;
         QString zipPath = absolutePath + ".zip";
         zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_CREATE | ZIP_TRUNCATE, &errorDir);
@@ -54,7 +54,7 @@ namespace MainLogic {
     }
 
     //TODO:: добавить еще параметр куда сохранять сжатый файл
-    bool MainFormLogic::AddFileToZip(zip_t *archive, const QString &absolutePathFile, const QString &relativePathInArchive) {
+    bool MainForm::AddFileToZip(zip_t *archive, const QString &absolutePathFile, const QString &relativePathInArchive) {
         QFile file(absolutePathFile);
         if (!file.open(QIODevice::ReadOnly)) {
             qDebug() << "Failed to open file:" << absolutePathFile;
@@ -78,7 +78,7 @@ namespace MainLogic {
     }
 
     //TODO:: добавить еще параметр куда сохранять сжатый файл
-    bool MainFormLogic::AddFolderToZip(zip_t *archive, const QString &absolutePathFolder,const QString &relativePathInArchive) {
+    bool MainForm::AddFolderToZip(zip_t *archive, const QString &absolutePathFolder, const QString &relativePathInArchive) {
         if (zip_dir_add(archive, relativePathInArchive.toUtf8().constData(), ZIP_FL_ENC_UTF_8) < 0) {
             qDebug() << "Failed to add directory to zip:" << relativePathInArchive << "Error:" << zip_strerror(archive);
             return false;
@@ -106,7 +106,7 @@ namespace MainLogic {
         return true;
     }
 
-    void MainFormLogic::UnArchive(const QString &zipPath) {
+    void MainForm::UnArchive(const QString &zipPath) {
         int errorDir = 0;
         zip_t *archive = zip_open(zipPath.toUtf8().constData(), ZIP_RDONLY, &errorDir);
         if (archive == nullptr) {
@@ -148,7 +148,7 @@ namespace MainLogic {
         qDebug() << "Unzipping completed to:" << destDirPath;
     }
 
-    void MainFormLogic::FileDoubleClicked(const QModelIndex &index, QFileSystemModel *fileSystemModel) {
+    void MainForm::FileDoubleClicked(const QModelIndex &index, QFileSystemModel *fileSystemModel) {
         QString selectedFilePath = fileSystemModel->filePath(index);
 
         if (selectedFilePath.endsWith(".zip") || selectedFilePath.endsWith(".rar")) {

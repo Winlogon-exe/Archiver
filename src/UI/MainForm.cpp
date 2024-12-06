@@ -188,7 +188,8 @@ namespace MainWindow {
 
     void MainForm::OpenFilesInArchive(const QModelIndex &index,const QString &path)
     {
-
+        //вот тут создать новый класс который откроет содержимое архива
+        qDebug()<<"test";
     }
 
     void MainForm::contextMenuEvent(QContextMenuEvent *event)

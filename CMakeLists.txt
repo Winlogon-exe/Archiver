@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(Detroit VERSION 0.1 LANGUAGES C CXX)
+project(Zipster VERSION 0.1 LANGUAGES C CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -24,7 +24,7 @@ find_package(libzip CONFIG REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 
-qt_add_executable(Detroit
+qt_add_executable(Zipster
         main.cpp
         inc/ui/MainForm.h
         src/UI/MainForm.cpp
@@ -38,7 +38,7 @@ qt_add_executable(Detroit
 )
 
 if(WIN32)
-    target_sources(Detroit PRIVATE ${APP_ICON_RESOURCE})
+    target_sources(Zipster PRIVATE ${APP_ICON_RESOURCE})
 endif()
 
-target_link_libraries(Detroit PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ZLIB::ZLIB libzip::zip)
+target_link_libraries(Zipster PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ZLIB::ZLIB libzip::zip)

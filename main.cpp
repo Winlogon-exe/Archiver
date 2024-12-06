@@ -1,15 +1,19 @@
 #include <QApplication>
+#include <memory>
 #include "ui/MainForm.h"
 #include "logic/Register.h"
+#include "inc/UI/ArchiveExplorer.h"
 
-// zip не открывается в проводнике
-// нет окна выбора файлов при архивации
-// не все файлы архивируются(что то с именами)
-// нет видимости что если файл занят другим процессом его нельзя удалить
-// нет прогресса/времени архивации
-// нет названия/иконки
+// zip не открывается в проводнике❌
+// нет окна выбора файлов при архивации❌
+// не все файлы архивируются(что то с именами)❌
+// нет видимости что если файл занят другим процессом его нельзя удалить❌
+// нет прогресса/времени архивации❌
+// нет названия/иконки✅
+// регистрация в реестре✅
 
-void addToRegister() {
+void addToRegister()
+{
     Register reg;
     if (!reg.isRegisteredForOpenWith())
     {
@@ -21,31 +25,35 @@ void addToRegister() {
     }
 }
 
-//аргументы принимает потому что при "открыть с помощью" нужно получить путь к архиву
+// аргументы принимает потому что при "открыть с помощью" нужно получить путь к архиву
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     if (argc > 1)
     {
         QString filePath = argv[1];
-        qDebug() << filePath;
+        ArchiveExplorer *explorer = new ArchiveExplorer();
+        explorer->openArchiveExplorer(filePath);
+        explorer->show();
+        QObject::connect(explorer, &QWidget::destroyed, explorer, &QObject::deleteLater);
     }
+    else
+    {
+        addToRegister();
 
-    addToRegister();
+        QThread logicThread;
+        MainLogic::MainForm logic;
+        logic.moveToThread(&logicThread);
+        logicThread.start();
 
-    QThread logicThread;
-    MainLogic::MainForm logic;
-    logic.moveToThread(&logicThread);
-    logicThread.start();
+        MainWindow::MainForm form(nullptr, &logic);
+        form.SetupConnect();
+        form.InitUI();
+        form.show();
 
-    MainWindow::MainForm form(nullptr, &logic);
-    form.SetupConnect();
-    form.InitUI();
-    form.show();
-
-    QObject::connect(&app, &QApplication::aboutToQuit, &logicThread, &QThread::quit);
-    QObject::connect(&logicThread, &QThread::finished, &logicThread, &QThread::deleteLater);
-
+        QObject::connect(&app, &QApplication::aboutToQuit, &logicThread, &QThread::quit);
+        QObject::connect(&logicThread, &QThread::finished, &logicThread, &QThread::deleteLater);
+    }
     return QApplication::exec();
 }
 

@@ -27,21 +27,12 @@ public:
     ~ArchiveExplorer();
 
 public:
-    void SetupConnect();
-    void SetupTreeView(const QString &file);
-    void SetupLayout();
-    QList<QString> getArchiveFileList(const QString &archivePath);
-
-public slots:
-    void OpenArchiveExplorer(const QString &file);
-    void OpenFileInArchive(const QModelIndex &index);
-
-signals:
+    void InitUI();
+    void setupConnect();
+    void openArchiveExplorer(const QString &file);
 
 private:
-    QTreeView *treeView;
-    QStandardItemModel *model;
-    QStandardItem *item;
+    QWidget *centralWidget;
 };
 
 

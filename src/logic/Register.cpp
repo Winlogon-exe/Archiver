@@ -7,34 +7,44 @@
 void Register::registerAppForOpenWith()
 {
     QString appPath = QCoreApplication::applicationFilePath();
-    QString command = QString("\"%1\" \"%1\"").arg(appPath);
+    appPath = appPath.replace("/", "\\");
+
+    QString command = QString("\"%1\" \"%2\"").arg(appPath).arg("%1");
 
     HKEY hKey;
     const char* fileType = ".zip";
-    const char* customFileType = "MyArchiverFile"; // Уникальное имя для типа файла
+    const char* customFileType = "ZipsterFile"; // Уникальное имя для типа файла
 
-    //  ассоциацию расширения файла .zip с типом MyArchiverFile
+    // Создаем ключ
     if (RegOpenKeyExA(HKEY_CLASSES_ROOT, fileType, 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS) {
         RegSetValueA(hKey, NULL, REG_SZ, customFileType, strlen(customFileType));
         RegCloseKey(hKey);
     }
 
-    QString appKey = QString("Applications\\%1\\shell\\open\\command").arg(appPath);
-    if (RegCreateKeyExA(HKEY_CLASSES_ROOT, appKey.toUtf8().constData(), 0, NULL, 0, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS) {
+    // Создаем папку (ключ)
+    QString appKeyPath = QString("Applications\\zipster.exe\\shell\\open\\command");
+
+    if (RegCreateKeyExA(HKEY_CLASSES_ROOT, appKeyPath.toUtf8().constData(), 0, NULL, 0, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS) {
         RegSetValueA(hKey, NULL, REG_SZ, command.toUtf8().constData(), command.size());
+        RegCloseKey(hKey);
+    }
+
+    // Добавляем  тип файла в контекстное меню "Открыть с помощью" для файлов .zip
+    const char* openWithProgIdsKey = ".zip\\OpenWithProgids";
+    if (RegOpenKeyExA(HKEY_CLASSES_ROOT, openWithProgIdsKey, 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS) {
+        RegSetValueA(hKey, customFileType, REG_NONE, NULL, 0);
         RegCloseKey(hKey);
     }
 }
 
 bool Register::isRegisteredForOpenWith() {
-    QString appPath = QCoreApplication::applicationFilePath();
-    QString appKey = QString("Applications\\%1\\shell\\open\\command").arg(appPath);
+    QString appKey = QString("Applications\\zipster.exe\\shell\\open\\command");
 
     HKEY hKey;
     if (RegOpenKeyExA(HKEY_CLASSES_ROOT, appKey.toUtf8().constData(), 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         RegCloseKey(hKey);
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }

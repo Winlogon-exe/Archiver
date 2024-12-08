@@ -4,7 +4,7 @@
 #include "logic/Register.h"
 #include "inc/UI/ArchiveExplorer.h"
 
-// zip не открывается в проводнике❌
+// zip не открывается в проводнике✅
 // нет окна выбора файлов при архивации❌
 // не все файлы архивируются(что то с именами)❌
 // нет видимости что если файл занят другим процессом его нельзя удалить❌
@@ -25,17 +25,17 @@ void addToRegister()
     }
 }
 
-// аргументы принимает потому что при "открыть с помощью" нужно получить путь к архиву
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     if (argc > 1)
     {
         QString filePath = argv[1];
-        ArchiveExplorer *explorer = new ArchiveExplorer();
+        ArchiveExplorer *explorer = new ArchiveExplorer(nullptr);
         explorer->openArchiveExplorer(filePath);
         explorer->show();
         QObject::connect(explorer, &QWidget::destroyed, explorer, &QObject::deleteLater);
+        return app.exec();
     }
     else
     {
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
         QObject::connect(&app, &QApplication::aboutToQuit, &logicThread, &QThread::quit);
         QObject::connect(&logicThread, &QThread::finished, &logicThread, &QThread::deleteLater);
+        return app.exec();
     }
-    return QApplication::exec();
 }
 

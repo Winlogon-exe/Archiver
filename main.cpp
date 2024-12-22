@@ -1,16 +1,9 @@
 #include <QApplication>
 #include <memory>
+
 #include "ui/MainForm.h"
 #include "logic/Register.h"
 #include "inc/UI/ArchiveExplorer.h"
-
-// zip не открывается в проводнике✅
-// нет окна выбора файлов при архивации❌
-// не все файлы архивируются(что то с именами)❌
-// нет видимости что если файл занят другим процессом его нельзя удалить❌
-// нет прогресса/времени архивации❌
-// нет названия/иконки✅
-// регистрация в реестре✅
 
 void addToRegister()
 {
@@ -23,7 +16,20 @@ void addToRegister()
     {
         qDebug() << "Application already registered for 'Open With'.";
     }
+    reg.addArchiveOptionToContextMenu();
 }
+
+void printArg(int argc,char *argv[])
+{
+    qDebug() << "Arguments passed to the program:";
+    for (int i = 0; i < argc; i++)
+    {
+        qDebug() << "argv[" << i << "]:" << argv[i];
+    }
+
+    qDebug() << "Number of arguments:" << argc;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -31,6 +37,9 @@ int main(int argc, char *argv[])
     if (argc > 1)
     {
         QString filePath = argv[1];
+
+        printArg(argc,argv);
+
         ArchiveExplorer *explorer = new ArchiveExplorer(nullptr);
         explorer->openArchiveExplorer(filePath);
         explorer->show();
@@ -39,6 +48,7 @@ int main(int argc, char *argv[])
     }
     else
     {
+        printArg(argc,argv);
         addToRegister();
 
         QThread logicThread;

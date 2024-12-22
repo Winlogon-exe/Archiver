@@ -34,7 +34,8 @@ namespace MainWindow
         Question
     };
 
-    class MainForm : public QMainWindow {
+    class MainForm : public QMainWindow
+    {
     Q_OBJECT
 
     public:
@@ -74,7 +75,7 @@ namespace MainWindow
         void Clicked();
         void FileDoubleClicked(const QModelIndex &index);
         void SetListView(const QModelIndex &index);
-        void OpenFilesInArchive(const QModelIndex &index,const QString &path);
+        void OpenFilesInArchive(const QString &path);
         bool showMessageBox(QWidget* parent, const QString& title, const QString& message, MessageBoxType type);
 
     private:

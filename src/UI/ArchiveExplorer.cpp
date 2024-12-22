@@ -1,3 +1,4 @@
+#include <QStandardPaths>
 #include "ui/ArchiveExplorer.h"
 
 ArchiveExplorer::ArchiveExplorer(QWidget *parent): QWidget(parent)
@@ -38,13 +39,12 @@ void ArchiveExplorer::openZip(const QString &PathToZip)
         return;
     }
 
-    fileMap = loadArchiveToMemory(za);
-    populateTreeView(fileMap);
+    loadArchiveToMemory();
+    populateTreeView();
 }
 
-QMap<QString, QByteArray> ArchiveExplorer::loadArchiveToMemory(struct zip *za)
+void ArchiveExplorer::loadArchiveToMemory()
 {
-    QMap<QString, QByteArray> fileMaps;
     zip_int64_t numFiles = zip_get_num_entries(za, 0);
     for (zip_int64_t i = 0; i < numFiles; ++i)
     {
@@ -61,22 +61,23 @@ QMap<QString, QByteArray> ArchiveExplorer::loadArchiveToMemory(struct zip *za)
             fileData.append(buffer,bytesRead);
         }
         zip_fclose(zf);
-        fileMaps.insert(path,fileData);
+        fileMap.insert(path,fileData);
     }
     zip_close(za);
-    return fileMaps;
 }
 
-void ArchiveExplorer::populateTreeView(const QMap<QString, QByteArray> &fileMap)
+void ArchiveExplorer::populateTreeView()
 {
+    QFileIconProvider iconProvider; // Провайдер иконок для файлов и папок
+
     for (const QString &path : fileMap.keys())
     {
-        QStringList pathParts = path.split('/');
+        QStringList pathParts = path.split('/',Qt::SkipEmptyParts);
 
         QStandardItem *parentItem = model->invisibleRootItem();
         for (const QString &part : pathParts)
         {
-            QStandardItem *item = nullptr;
+            QStandardItem *item;
 
             bool found = false;
             for (int i = 0; i < parentItem->rowCount(); ++i)
@@ -92,6 +93,18 @@ void ArchiveExplorer::populateTreeView(const QMap<QString, QByteArray> &fileMap)
             if (!found)
             {
                 item = new QStandardItem(part);
+
+                // Установка иконки
+                if (pathParts.last() == part)
+                { // Если это последний элемент (файл)
+                    QFileInfo fileInfo(part);
+                    item->setIcon(iconProvider.icon(fileInfo));
+                }
+                else 
+                {
+                    item->setIcon(iconProvider.icon(QFileIconProvider::Folder));
+                }
+
                 parentItem->appendRow(item);
             }
 
@@ -105,46 +118,66 @@ void ArchiveExplorer::populateTreeView(const QMap<QString, QByteArray> &fileMap)
 
 void ArchiveExplorer::onFileDoubleClicked(const QModelIndex &index)
 {
+    // путь файла из данных модели
     QString filePath = index.data(Qt::UserRole).toString();
     qDebug() << "Selected file path:" << filePath;
 
-    QByteArray fileData = fileMap.value(filePath);
-    if (fileData.isEmpty()) {
-        qWarning() << "File data is empty!";
-        return;
+    if (tempDir.isEmpty())
+    {
+        tempDir = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath("ZipSter");
+        QDir().mkpath(tempDir);
+        qDebug() << "Temporary directory created:" << tempDir;
+
+        // все файлы из архива
+        for (auto it = fileMap.begin(); it != fileMap.end(); ++it)
+        {
+            QString relativePath = it.key(); // Относительный путь в архиве
+            QString fullPath = QDir(tempDir).filePath(relativePath);
+            QFileInfo fileInfo(fullPath);
+
+            if (relativePath.endsWith('/')) {
+                QDir().mkpath(fullPath);
+                qDebug() << "Created directory:" << fullPath;
+                continue;
+            }
+
+            QDir().mkpath(fileInfo.absolutePath());
+
+            QFile file(fullPath);
+            if (file.open(QIODevice::WriteOnly))
+            {
+                file.write(it.value());
+                file.close();
+            }
+            else
+            {
+                qWarning() << "Failed to write file:" << fullPath;
+            }
+        }
     }
 
-    QFileInfo fileInfo(filePath);
-    QString fileName = fileInfo.fileName();
-    QString fileExtension = fileInfo.suffix(); //  расширение файла
-
-    tempFile = new QTemporaryFile();
-    QString tempFileName = QDir::temp().filePath(fileName);
-    tempFile->setFileName(tempFileName);
-
-    if (!tempFile->open()) {
-        qWarning() << "Failed to create temporary file!";
-        return;
-    }
-    qDebug() << "Temporary file created at:" << tempFile->fileName();
-
-    tempFile->write(fileData);
-    tempFile->flush();
-    qDebug() << "Data written to temporary file.";
-
-    tempFile->close();
-    qDebug() << "Temporary file closed.";
-
-    QString tempFilePath = tempFile->fileName();
-    qDebug() << "Path to temporary file:" << tempFilePath;
+    QString tempFilePath = QDir(tempDir).filePath(filePath);
+    qDebug() << "Temporary file path for execution:" << tempFilePath;
 
     QDesktopServices::openUrl(QUrl::fromLocalFile(tempFilePath));
     qDebug() << "Opening file with default application.";
+}
 
+void ArchiveExplorer::cleanupTempDir()
+{
+    if (!tempDir.isEmpty())
+    {
+        QDir dir(tempDir);
+        if (dir.exists())
+        {
+            dir.removeRecursively();
+            qDebug() << "Temporary directory cleaned up:" << tempDir;
+        }
+    }
 }
 
 ArchiveExplorer::~ArchiveExplorer()
 {
-
+    cleanupTempDir();
 }
 

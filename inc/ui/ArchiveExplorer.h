@@ -29,6 +29,8 @@
 #include <QProcess>
 #include <QMessageBox>
 #include <QTimer>
+#include <QDir>
+#include <QFileIconProvider>
 
 class ArchiveExplorer : public QWidget {
     Q_OBJECT
@@ -41,17 +43,20 @@ public:
     void InitUI();
     void openZip(const QString &PathToZip);
     void openArchiveExplorer(const QString &file);
-    void populateTreeView(const QMap<QString, QByteArray> &fileMap);
+    void populateTreeView();
+    void cleanupTempDir();
+    void loadArchiveToMemory();
+
+public slots:
     void onFileDoubleClicked(const QModelIndex &index);
-    QMap<QString, QByteArray> loadArchiveToMemory(struct zip *za);
 
 private:
-    QTreeView* treeView;
+    QMap<QString, QByteArray> fileMap;//path,fileData
     QStandardItemModel *model;
     QVBoxLayout *layout;
+    QTreeView* treeView;
+    QString tempDir;
     struct zip *za;
-    QMap<QString, QByteArray> fileMap;
-    QTemporaryFile* tempFile;
 };
 
 

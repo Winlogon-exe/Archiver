@@ -20,16 +20,18 @@
 #include <zip.h>
 #include "UI/ArchiveExplorer.h"
 
-namespace MainLogic {
-
-    enum ButtonsState {
+namespace MainLogic
+{
+    enum ButtonsState
+            {
         ARCHIVE,
         UNARCHIVE,
         PATH,
         BACK
     };
 
-    class MainForm : public QObject {
+    class MainForm : public QObject
+    {
     Q_OBJECT
 
     public:
@@ -53,7 +55,7 @@ namespace MainLogic {
         void BackFileSystem();
         void ArchiveFileButton();
         void UnArchiveFileButton();
-        void OpenArchiveInExplorer(const QModelIndex &index,const QString &path);
+        void OpenArchiveInExplorer(const QString &path);
         void UpdateListView(const QModelIndex &index);
        // void SetModelListView(QStandardItemModel);
 

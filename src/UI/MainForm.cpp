@@ -133,7 +133,8 @@ namespace MainWindow {
     {
         QModelIndexList selectedIndexes = listView->selectionModel()->selectedIndexes();
 
-        if (selectedIndexes.isEmpty()) {
+        if (selectedIndexes.isEmpty())
+        {
             qDebug() << "Index is empty";
             return;
         }
@@ -147,7 +148,8 @@ namespace MainWindow {
     {
         QModelIndexList selectedIndexes = listView->selectionModel()->selectedIndexes();
 
-        if (selectedIndexes.isEmpty()) {
+        if (selectedIndexes.isEmpty())
+        {
             qDebug() << "Index is empty";
             return;
         }
@@ -155,8 +157,10 @@ namespace MainWindow {
         QModelIndex selectedIndex = selectedIndexes.first();
         QString selectedFilePath = fileSystemModel->filePath(selectedIndex);
 
-        if (!selectedFilePath.endsWith(".zip") && !selectedFilePath.endsWith(".rar")) {
-            qDebug() << "File is not archive";
+        if (!selectedFilePath.endsWith(".zip") && !selectedFilePath.endsWith(".rar"))
+        {
+
+            showMessageBox(this, "Ошибка", "Файл не является архивом ", Critical);
             return;
         }
         emit SendSelectedFileUnArchive(selectedFilePath);
@@ -168,7 +172,8 @@ namespace MainWindow {
         QString currentPath = fileSystemModel->filePath(currentIndex);
         QString parentPath = QFileInfo(currentPath).absolutePath();
 
-        if (parentPath != currentPath) {
+        if (parentPath != currentPath)
+        {
             listView->setRootIndex(fileSystemModel->index(parentPath));
         }
         else {
@@ -186,10 +191,12 @@ namespace MainWindow {
         listView->setRootIndex(index);
     }
 
-    void MainForm::OpenFilesInArchive(const QModelIndex &index,const QString &path)
+    void MainForm::OpenFilesInArchive(const QString &path)
     {
-        //вот тут создать новый класс который откроет содержимое архива
-        qDebug()<<"test";
+        ArchiveExplorer *explorer = new ArchiveExplorer(nullptr);
+        explorer->openArchiveExplorer(path);
+        explorer->show();
+        QObject::connect(explorer, &QWidget::destroyed, explorer, &QObject::deleteLater);
     }
 
     void MainForm::contextMenuEvent(QContextMenuEvent *event)
@@ -213,7 +220,8 @@ namespace MainWindow {
         msgBox.setWindowTitle(title);
         msgBox.setText(message);
 
-        switch (type) {
+        switch (type)
+        {
             case Info:
                 msgBox.setIcon(QMessageBox::Information);
                 msgBox.setStandardButtons(QMessageBox::Ok);
@@ -237,29 +245,35 @@ namespace MainWindow {
 
     void MainForm::keyPressEvent(QKeyEvent *event)
     {
-        if (event->key() == Qt::Key_Delete) {
+        if (event->key() == Qt::Key_Delete)
+        {
             QModelIndexList selectedIndexes = listView->selectionModel()->selectedIndexes();
 
-            if (!selectedIndexes.isEmpty()) {
+            if (!selectedIndexes.isEmpty())
+            {
                 QString selectedFilePath = fileSystemModel->filePath(selectedIndexes.first());
                 QFileInfo fileInfo(selectedFilePath);
 
-                if (!showMessageBox(this, "Подтверждение удаления", "Вы действительно хотите удалить " + selectedFilePath + "?", Question)) {
+                if (!showMessageBox(this, "Подтверждение удаления", "Вы действительно хотите удалить " + selectedFilePath + "?", Question))
+                {
                     return;
                 }
 
-                if (fileInfo.isFile()) {
+                if (fileInfo.isFile())
+                {
                     QFile::remove(selectedFilePath);
                     qDebug() << "File remove:" << selectedFilePath;
                 }
-                else if (fileInfo.isDir()) {
+                else if (fileInfo.isDir())
+                {
                     QDir dir(selectedFilePath);
                     dir.removeRecursively();
                     qDebug() << "Dir remove:" << selectedFilePath;
                 }
             }
         }
-        else {
+        else
+        {
             QMainWindow::keyPressEvent(event);
         }
     }

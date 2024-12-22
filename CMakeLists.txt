@@ -41,4 +41,4 @@ if(WIN32)
     target_sources(Zipster PRIVATE ${APP_ICON_RESOURCE})
 endif()
 
-target_link_libraries(Zipster PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ZLIB::ZLIB libzip::zip)
+target_link_libraries(Zipster PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ZLIB::ZLIB libzip::zip Shell32)

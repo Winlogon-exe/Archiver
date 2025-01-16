@@ -23,15 +23,14 @@ private:
 
     const wchar_t* defaultValueOpen = L"Открыть в Zipster";
     const wchar_t* defaultValueAdd = L"Добавить в Архив";
-    const wchar_t* defaultValueExtend = L"Разархивировать в текущей месте";
+    const wchar_t* defaultValueExtend = L"Разархивировать в текущем месте";
 
     const wchar_t* commandKeyOpen = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\Zipster.Open\\command";
     const wchar_t* commandKeyAdd = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\Zipster.Add\\command";
     const wchar_t* commandKeyExtend = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\Zipster.Extend\\command";
 
 private:
-    QString exePath = QCoreApplication::applicationFilePath();
-    std::wstring wIconPath = exePath.toStdWString();
+    std::wstring exePath = QCoreApplication::applicationFilePath().toStdWString();
     QString command = QString("\"%1\" \"%2\"").arg(exePath).arg("%1");
     std::wstring wCommand = command.toStdWString();
 };

@@ -5,6 +5,7 @@
 #include <QDir>
 #include "logic/Register.h"
 
+//рефактор
 void Register::registerAppForOpenWith()
 {
     HKEY hKey;
@@ -34,6 +35,7 @@ void Register::registerAppForOpenWith()
     }
 }
 
+//рефактор: раскидать по функциями
 void Register::addArchiveOptionToContextMenu()
 {
     HKEY key;
@@ -43,15 +45,18 @@ void Register::addArchiveOptionToContextMenu()
     if (RegCreateKeyEx(HKEY_CLASSES_ROOT, subKey, 0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL, &key, NULL) == ERROR_SUCCESS)
     {
         RegSetValueEx(key, L"SubCommands", 0, REG_SZ, (const BYTE*)commandsValue, (lstrlenW(commandsValue) + 1) * sizeof(wchar_t));
-        RegSetValueEx(key, L"Icon", 0, REG_SZ, (const BYTE*)wIconPath.c_str(), (lstrlenW(wIconPath.c_str()) + 1) * sizeof(wchar_t));
+        RegSetValueEx(key, L"Icon", 0, REG_SZ, (const BYTE*)exePath.c_str(), (lstrlenW(exePath.c_str()) + 1) * sizeof(wchar_t));
         RegCloseKey(key);
     }
 
     HKEY hkeyLocal;
     if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, subParamOpen, 0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL, &hkeyLocal, NULL) == ERROR_SUCCESS)
     {
+        //defaultParam
         RegSetValueEx(hkeyLocal, NULL, 0, REG_SZ, (const BYTE*)defaultValueOpen, (lstrlenW(defaultValueOpen) + 1) * sizeof(wchar_t));
-        RegSetValueEx(hkeyLocal, L"Icon", 0, REG_SZ, (const BYTE*)wIconPath.c_str(), (lstrlenW(wIconPath.c_str()) + 1) * sizeof(wchar_t));
+
+        //icon
+        RegSetValueEx(hkeyLocal, L"Icon", 0, REG_SZ, (const BYTE*)exePath.c_str(), (lstrlenW(exePath.c_str()) + 1) * sizeof(wchar_t));
 
         //command
         RegCreateKeyEx(HKEY_LOCAL_MACHINE, commandKeyOpen, 0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL, &hkeyLocal, NULL);
@@ -60,8 +65,11 @@ void Register::addArchiveOptionToContextMenu()
 
     if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, subParamAdd, 0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL, &hkeyLocal, NULL) == ERROR_SUCCESS)
     {
+        //defaultParam
         RegSetValueEx(hkeyLocal, NULL, 0, REG_SZ, (const BYTE*)defaultValueAdd, (lstrlenW(defaultValueAdd) + 1) * sizeof(wchar_t));
-        RegSetValueEx(hkeyLocal, L"Icon", 0, REG_SZ, (const BYTE*)wIconPath.c_str(), (lstrlenW(wIconPath.c_str()) + 1) * sizeof(wchar_t));
+
+        //icon
+        RegSetValueEx(hkeyLocal, L"Icon", 0, REG_SZ, (const BYTE*)exePath.c_str(), (lstrlenW(exePath.c_str()) + 1) * sizeof(wchar_t));
 
         //command
         RegCreateKeyEx(HKEY_LOCAL_MACHINE, commandKeyAdd, 0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL, &hkeyLocal, NULL);
@@ -70,8 +78,11 @@ void Register::addArchiveOptionToContextMenu()
 
     if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, subParamExtend, 0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL, &hkeyLocal, NULL) == ERROR_SUCCESS)
     {
+        //defaultParam
         RegSetValueEx(hkeyLocal, NULL, 0, REG_SZ, (const BYTE*)defaultValueExtend, (lstrlenW(defaultValueExtend) + 1) * sizeof(wchar_t));
-        RegSetValueEx(hkeyLocal, L"Icon", 0, REG_SZ, (const BYTE*)wIconPath.c_str(), (lstrlenW(wIconPath.c_str()) + 1) * sizeof(wchar_t));
+
+        //icon
+        RegSetValueEx(hkeyLocal, L"Icon", 0, REG_SZ, (const BYTE*)exePath.c_str(), (lstrlenW(exePath.c_str()) + 1) * sizeof(wchar_t));
 
         //command
         RegCreateKeyEx(HKEY_LOCAL_MACHINE, commandKeyExtend, 0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL, &hkeyLocal, NULL);
@@ -81,11 +92,13 @@ void Register::addArchiveOptionToContextMenu()
     RegCloseKey(hkeyLocal);
 }
 
-bool Register::isRegisteredForOpenWith() {
+bool Register::isRegisteredForOpenWith()
+{
     QString appKey = QString("Applications\\zipster.exe\\shell\\open\\command");
 
     HKEY hKey;
-    if (RegOpenKeyExA(HKEY_CLASSES_ROOT, appKey.toUtf8().constData(), 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+    if (RegOpenKeyExA(HKEY_CLASSES_ROOT, appKey.toUtf8().constData(), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
         RegCloseKey(hKey);
         return true;
     }
